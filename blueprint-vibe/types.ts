@@ -51,7 +51,6 @@ export interface PinDefinition {
   id: string;
   name: string;
   type: PinType;
-  isOutput: boolean;
   defaultValue?: string;
   value?: string; // Current user-editable value
 }
@@ -62,6 +61,17 @@ export interface BlueprintNodeData extends Record<string, unknown> {
   inputs: PinDefinition[];
   outputs: PinDefinition[];
   comment?: string;
+  /** Optional canonical key referencing the UE node catalog */
+  templateKey?: string;
+  /** Whether the node is a pure (non-exec) blueprint function */
+  pure?: boolean;
+  /** Additional description or tooltip copy */
+  description?: string;
+  /** Explicit style overrides derived from catalog metadata */
+  style?: {
+    headerColor?: string;
+    borderColor?: string;
+  };
 }
 
 // React Flow specific types

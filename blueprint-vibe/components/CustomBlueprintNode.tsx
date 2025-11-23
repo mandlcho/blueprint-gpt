@@ -243,31 +243,38 @@ const CustomBlueprintNode = ({ id, data }: NodeProps<BPNode>) => {
      VariableSet: { bg: variableColorHex, border: variableColorHex }
   };
 
-  let activeStyle = COLORS.Function;
+  let activeStyle = { ...COLORS.Function };
   let icon = <span className="text-[#a0c0ff] font-serif italic font-black text-sm mr-2 drop-shadow">f</span>;
-  const isPure = !data.inputs.some(p => p.type === PinType.Exec) && !data.outputs.some(p => p.type === PinType.Exec);
+  const isPure = data.pure ?? (!data.inputs.some(p => p.type === PinType.Exec) && !data.outputs.some(p => p.type === PinType.Exec));
 
   switch (effectiveNodeType) {
     case NodeType.Event:
     case NodeType.InputEvent:
-      activeStyle = COLORS.Event;
+      activeStyle = { ...COLORS.Event };
       icon = <Zap size={14} className="text-red-100 mr-2 fill-white/20 drop-shadow" />;
       break;
     case NodeType.FlowControl:
     case NodeType.Macro:
-      activeStyle = COLORS.Macro;
+      activeStyle = { ...COLORS.Macro };
       icon = <Layers size={14} className="text-gray-300 mr-2 drop-shadow" />;
       break;
     case NodeType.VariableSet:
-      activeStyle = COLORS.VariableSet;
+      activeStyle = { ...COLORS.VariableSet };
       icon = <span className="text-white font-bold text-[10px] mr-2">SET</span>;
       break;
     default:
       if (isPure) {
-         activeStyle = COLORS.PureFunction;
+         activeStyle = { ...COLORS.PureFunction };
          icon = <span className="text-[#baffba] font-serif italic font-black text-sm mr-2 drop-shadow">f</span>;
       }
       break;
+  }
+
+  if (data.style?.headerColor || data.style?.borderColor) {
+    activeStyle = {
+      bg: data.style.headerColor ?? activeStyle.bg,
+      border: data.style.borderColor ?? activeStyle.border
+    };
   }
 
   return (
@@ -276,6 +283,7 @@ const CustomBlueprintNode = ({ id, data }: NodeProps<BPNode>) => {
       {/* Header */}
       <div 
         className="relative px-3 py-1.5 flex items-center rounded-t-[7px] overflow-hidden border-t border-white/20"
+        title={typeof data.description === 'string' ? data.description : undefined}
         style={{
             background: effectiveNodeType === NodeType.VariableSet 
               ? `linear-gradient(to bottom, ${activeStyle.bg}cc, ${activeStyle.bg}66)`
