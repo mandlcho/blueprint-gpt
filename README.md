@@ -1,5 +1,7 @@
 # UnrealVibes · Vibe Code plugin
 
+**License:** Apache 2.0 — free to use, modify, and ship (including commercially) with attribution retained. Originated by Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho)). See `LICENSE` and `NOTICE` for details.
+
 A UE5 editor plugin that lets you "vibe code" blueprint snippets by describing the desired feature in natural language. It sends prompts to OpenAI's Chat Completions API and injects the structured answer back into your Blueprint graph as an annotated comment block so you can wire things up quickly. The repo and plugin folder are both named **UnrealVibes**, so you can drop it straight into a project.
 
 ## Features
@@ -59,3 +61,9 @@ The code lives in `Source/UnrealVibes`. Key classes:
 - `UVibeCodeEditorSubsystem`: Helper that injects the pseudo-code into the target Blueprint as a comment node.
 
 You can extend the subsystem to spawn real nodes using `UEdGraphSchema_K2::SpawnNodeFromTemplate` once you define a reliable JSON schema for nodes/pins.
+
+## License and attribution
+
+- Licensed under Apache 2.0. You can use, learn from, modify, and ship it (including commercially) as long as you keep the required notices.
+- Originator: Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho)). Please retain this attribution in forks and redistributions.
+- Contributions are welcome and will be released under the same license; submit PRs to be listed as a contributor.
