@@ -1,23 +1,23 @@
-# UnrealVibes · Vibe Code plugin
+# blueprint-gpt : llm-to-blueprint code generator.
 
 **License:** Apache 2.0 — free to use, modify, and ship (including commercially) with attribution retained. Originated by Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho)). See `LICENSE` and `NOTICE` for details.
 
-A UE5 editor plugin that lets you "vibe code" blueprint snippets by describing the desired feature in natural language. It sends prompts to OpenAI's Chat Completions API and injects the structured answer back into your Blueprint graph as an annotated comment block so you can wire things up quickly. The repo and plugin folder are both named **UnrealVibes**, so you can drop it straight into a project.
+A UE5 editor plugin that lets you "vibe code" blueprint snippets by describing the desired feature in natural language. It currently sends prompts to the Gemini API and injects the structured answer back into your Blueprint graph as an annotated comment block so you can wire things up quickly. Future updates will add other LLM APIs behind the same interface. The repo and plugin folder are both named **blueprint-gpt**, so you can drop it straight into a project.
 
 ## Features
 
 - Editor-only module that adds a Blueprint-exposed async node `Send Prompt` for use inside Editor Utility Widgets or Blutilities.
-- CLI-style `unreal-cli` window (Window → unrealvibes → unreal-cli) so you can vibe code directly from a dockable tab without wiring Blueprints first.
-- Project Settings panel (`Plugins > Vibe Code`) for storing your ChatGPT token, base URL, model, temperature and default system instructions.
+- CLI-style dockable window (Window → blueprint-gpt) so you can vibe code directly from a tab without wiring Blueprints first.
+- Project Settings panel (`Plugins > blueprint-gpt`) for storing your Gemini API key, base URL, model, temperature and default system instructions. Other LLM providers will plug into the same panel later.
 - Optional auto-drop of the returned plan into the selected Blueprint as a comment (pseudo-K2 text + implementation notes).
 - JSON-centric prompting so models respond with deterministic payloads you can parse or extend.
 
 ## Quick start
 
-1. Copy the `UnrealVibes` folder into your project's `Plugins` directory (create it if missing).
+1. Copy the `blueprint-gpt` folder into your project's `Plugins` directory (create it if missing).
 2. Regenerate project files and rebuild the editor module.
-3. Launch the editor, open **Project Settings → Plugins → Vibe Code** and paste your ChatGPT token (Plus or Free-tier).
-4. Open **Window → unrealvibes → unreal-cli**, paste your Blueprint asset path/prompt, then hit **Send Prompt** to chat in a terminal-style UI. Toggle “Drop comment into Blueprint” if you want notes injected automatically.
+3. Launch the editor, open **Project Settings → Plugins → blueprint-gpt** and paste your Gemini API key.
+4. Open the blueprint-gpt console tab (Window → blueprint-gpt), paste your Blueprint asset path/prompt, then hit **Send Prompt** to chat in a terminal-style UI. Toggle “Drop comment into Blueprint” if you want notes injected automatically.
 5. (Optional) Create an **Editor Utility Widget** (or Blutility) and call `Send Prompt` from the `VibeCode` category if you prefer to wire the async node yourself.
 6. Every response yields an `FVibeCodePlan` struct (Summary + PseudoK2 + Notes). If `bApplySuggestion` is true, a comment node containing the plan is injected into the Blueprint you referenced.
 
@@ -44,7 +44,7 @@ The system prompt enforces the following payload so you can add more automation 
 }
 ```
 
-Feel free to extend `FVibeCodePlan` with more structured data (variables, pins, dependencies) and ask ChatGPT to fill them.
+Feel free to extend `FVibeCodePlan` with more structured data (variables, pins, dependencies) and ask the LLM to fill them.
 
 ## Limitations / ideas
 
@@ -53,7 +53,7 @@ Feel free to extend `FVibeCodePlan` with more structured data (variables, pins, 
 
 ## Development
 
-The code lives in `Source/UnrealVibes`. Key classes:
+The code lives in `Source/blueprint-gpt`. Key classes:
 
 - `UVibeCodeSettings`: Developer settings for API credentials.
 - `UVibeCodeAsyncAction`: Blueprint async node hitting the Chat Completions endpoint via `FVibeCodePromptService`.
@@ -67,3 +67,4 @@ You can extend the subsystem to spawn real nodes using `UEdGraphSchema_K2::Spawn
 - Licensed under Apache 2.0. You can use, learn from, modify, and ship it (including commercially) as long as you keep the required notices.
 - Originator: Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho)). Please retain this attribution in forks and redistributions.
 - Contributions are welcome and will be released under the same license; submit PRs to be listed as a contributor.
+- Friendly ask: if you use this, drop me a message and let me know what you’re building.
