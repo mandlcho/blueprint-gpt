@@ -4,9 +4,9 @@
 
 Logic creation using blueprints made easy.
 
-## Demo (inline video)
+## Demo (inline GIF)
 
-<video src="media/2025-11-23/blueprint-demo.mov" autoplay loop muted playsinline controls style="max-width: 960px; width: 100%; border: 1px solid #ddd; border-radius: 8px;"></video>
+<img src="media/2025-11-23/blueprint-demo.gif" alt="Blueprint Vibe demo" style="max-width: 960px; width: 100%; border: 1px solid #ddd; border-radius: 8px;" />
 
 ## Roadmap
 
