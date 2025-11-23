@@ -3,7 +3,6 @@
 **License:** Apache 2.0 — free to use, modify, and ship (including commercially) with attribution retained. Originated by Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho) · LinkedIn: [mandlcho](https://www.linkedin.com/in/mandlcho/)). See `LICENSE` and `NOTICE` for details.
 
 Logic creation using blueprints made easy.
-Vibe-coding, but in blueprints.
 
 ## Roadmap
 
