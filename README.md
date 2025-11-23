@@ -7,7 +7,7 @@ Logic creation using blueprints made easy.
 ## Roadmap
 
 - See `ROADMAP.md` for details.
-- Highlights: web-based interface, standalone app, packaged UE plugin (.uplugin).
+- Highlights: web-based interface->standalone app->packaged UE plugin (.uplugin).
 
 ## License and attribution
 
