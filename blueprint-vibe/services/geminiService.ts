@@ -110,11 +110,13 @@ const ensureDefaultPins = (node: any) => {
 export const generateBlueprint = async (prompt: string): Promise<GeneratedBlueprint> => {
   // PRIORITY: Check LocalStorage (New Key Name) -> Check LocalStorage (Old Key Name) -> Check Env Var
   const apiKey = localStorage.getItem("BLUEPRINT_VIBE_GEMINI_KEY") || 
-                 localStorage.getItem("BLUEPRINT_VIBE_API_KEY") || 
+                 localStorage.getItem("BLUEPRINT_VIBE_API_KEY") ||
+                 localStorage.getItem("BLUEPRINT_VIBE_OPENAI_KEY") ||
+                 process.env.GEMINI_API_KEY ||
                  process.env.API_KEY;
   
   if (!apiKey) {
-      throw new Error("Missing Gemini API Key. Please click the Settings icon (top right) to enter your Gemini API Key.");
+      throw new Error("Missing API key. Open Settings (top right) and enter a Gemini key (or any key) in one of the API key fields.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -336,7 +338,7 @@ export const generateBlueprint = async (prompt: string): Promise<GeneratedBluepr
     const isQuota = rawMessage.toLowerCase().includes("quota") || rawMessage.includes("RESOURCE_EXHAUSTED") || rawMessage.includes("429");
     const friendlyMessage = isQuota
       ? "Gemini quota exceeded for this API key. Add your own key in Settings (top right) or try again later."
-      : "Gemini API failed. Check that your API key is valid and has quota.";
+      : "Gemini API failed. Check that your API key (from either field) is valid and has quota.";
 
     const normalized = new Error(friendlyMessage);
     (normalized as any).cause = error;
