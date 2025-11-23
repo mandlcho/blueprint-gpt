@@ -43,13 +43,38 @@ const NODE_COLORS: Record<NodeType, { header: string; border: string }> = {
 };
 
 const enrichTemplate = (template: typeof GENERATED_NODE_LIBRARY[string]): UENodeTemplate => {
+  const labelLower = template.label.toLowerCase();
+  const descriptionLower = template.description.toLowerCase();
+
+  let resolvedNodeType = template.nodeType;
+
+  const looksLikeEvent =
+    labelLower.startsWith("event ") ||
+    labelLower.startsWith("on ") ||
+    descriptionLower.includes("k2node_event") ||
+    descriptionLower.includes("k2node_customevent");
+
+  const looksLikeInputEvent =
+    labelLower.includes("input") ||
+    descriptionLower.includes("inputaxis") ||
+    descriptionLower.includes("inputkey");
+
+  if (looksLikeEvent) {
+    resolvedNodeType = NodeType.Event;
+  }
+
+  if (looksLikeInputEvent) {
+    resolvedNodeType = NodeType.InputEvent;
+  }
+
   const pure =
-    template.nodeType === NodeType.VariableGet ||
+    resolvedNodeType === NodeType.VariableGet ||
     !template.pins.some((pin) => pin.type === PinType.Exec);
-  const baseStyle = NODE_COLORS[template.nodeType] ?? NODE_COLORS[NodeType.Function];
+  const baseStyle = NODE_COLORS[resolvedNodeType] ?? NODE_COLORS[NodeType.Function];
 
   return {
     ...template,
+    nodeType: resolvedNodeType,
     pure,
     style: baseStyle,
   };

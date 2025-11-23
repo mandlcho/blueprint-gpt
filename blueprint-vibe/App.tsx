@@ -35,6 +35,7 @@ import {
 } from '@xyflow/react';
 import { generateBlueprint } from './services/geminiService';
 import { GeneratedBlueprint, BlueprintNodeData, BlueprintVariable, BlueprintFunction, PinType, UE_COLORS } from './types';
+import { instantiateBlueprintPlan } from './ue/nodeFactory';
 import BlueprintCanvas from './components/BlueprintCanvas';
 import { getLayoutedElements } from './utils/autoLayout';
 
@@ -56,6 +57,46 @@ const THINKING_MESSAGES = [
   "Transpiling Graph to Native C++ Implementation...",
   "Compiling bytecode and optimizing wire routing..."
 ];
+
+const SAMPLE_BLUEPRINT_PLAN = {
+  nodePlan: [
+    {
+      id: "CustomEvent1",
+      nodeKey: "CustomEvent",
+      comment: "Entry event (sample)"
+    },
+    {
+      id: "BranchDemo",
+      nodeKey: "Branch",
+      comment: "Decide whether to log a message"
+    },
+    {
+      id: "PrintNode",
+      nodeKey: "PrintString",
+      pinValues: {
+        InString: "Sample preview ready!"
+      }
+    }
+  ],
+  edgePlan: [
+    {
+      source: { node: "CustomEvent1", pin: "then" },
+      target: { node: "BranchDemo", pin: "execute" }
+    },
+    {
+      source: { node: "BranchDemo", pin: "then" },
+      target: { node: "PrintNode", pin: "execute" }
+    }
+  ]
+};
+
+const SAMPLE_CPP_SNIPPET = `#include "SamplePreviewActor.h"
+
+void ASamplePreviewActor::BeginPlay()
+{
+    Super::BeginPlay();
+    UE_LOG(LogTemp, Log, TEXT("Sample preview ready!"));
+}`;
 
 // Simple C++ Syntax Highlighter for Vibe
 const highlightCpp = (code: string) => {
@@ -332,6 +373,69 @@ function App() {
     addLog('success', 'API Keys saved to local storage.');
   };
 
+  const populateBlueprintFromResult = (result: GeneratedBlueprint) => {
+    if (result.variables) {
+      setVariables(prev => {
+        const existingIds = new Set(prev.map(v => v.id));
+        const newVars = (result.variables || []).filter(v => !existingIds.has(v.id));
+        return [...prev, ...newVars];
+      });
+    }
+
+    if (result.functions) {
+      setFunctions(prev => {
+        const existingIds = new Set(prev.map(f => f.id));
+        const newFuncs = (result.functions || []).filter(f => !existingIds.has(f.id));
+        return [...prev, ...newFuncs];
+      });
+    }
+
+    setBlueprintSummary(result.summary || 'No summary provided.');
+    setBlueprintSources(result.sources || []);
+    setGeneratedCpp(result.cppCode || '');
+    setTargetClass(result.targetClass || 'BP_GeneratedActor');
+
+    const safeNodes = result.nodes || [];
+    const safeEdges = result.edges || [];
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      safeNodes,
+      safeEdges
+    );
+
+    const coloredEdges = layoutedEdges.map(edge => {
+      const sourceNode = layoutedNodes.find(n => n.id === edge.source);
+      const sourcePin = sourceNode?.data.outputs.find((p: any) => p.id === edge.sourceHandle);
+      let color = UE_COLORS.Default;
+      let width = 2;
+      if (sourcePin) {
+        switch (sourcePin.type) {
+          case PinType.Exec: color = UE_COLORS.Exec; width = 2.5; break;
+          case PinType.Boolean: color = UE_COLORS.Boolean; break;
+          case PinType.Integer: color = UE_COLORS.Integer; break;
+          case PinType.Float: color = UE_COLORS.Float; break;
+          case PinType.String: color = UE_COLORS.String; break;
+          case PinType.Vector: color = UE_COLORS.Vector; break;
+          case PinType.Rotator: color = UE_COLORS.Rotator; break;
+          case PinType.Object: color = UE_COLORS.Object; break;
+          case PinType.Class: color = UE_COLORS.Class; break;
+          case PinType.Struct: color = UE_COLORS.Struct; break;
+          case PinType.Name: color = UE_COLORS.Name; break;
+          case PinType.Text: color = UE_COLORS.Text; break;
+        }
+      }
+      return {
+        ...edge,
+        type: 'default',
+        style: { stroke: color, strokeWidth: width },
+        animated: false
+      };
+    });
+
+    setNodes(layoutedNodes);
+    setEdges(coloredEdges);
+  };
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
@@ -360,66 +464,7 @@ function App() {
       
       if (thinkingInterval.current) clearInterval(thinkingInterval.current);
 
-      // Merge new variables/functions avoiding duplicates
-      if (result.variables) {
-        setVariables(prev => {
-           const existingIds = new Set(prev.map(v => v.id));
-           const newVars = result.variables!.filter(v => !existingIds.has(v.id));
-           return [...prev, ...newVars];
-        });
-      }
-
-      if (result.functions) {
-        setFunctions(prev => {
-            const existingIds = new Set(prev.map(f => f.id));
-            const newFuncs = result.functions!.filter(f => !existingIds.has(f.id));
-            return [...prev, ...newFuncs];
-        });
-      }
-
-      setBlueprintSummary(result.summary);
-      setBlueprintSources(result.sources || []);
-      setGeneratedCpp(result.cppCode || '');
-      setTargetClass(result.targetClass || 'BP_GeneratedActor');
-
-      // Layout
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-        result.nodes || [],
-        result.edges || []
-      );
-      
-      // Apply Color to new Edges generated by AI
-      const coloredEdges = layoutedEdges.map(edge => {
-          const sourceNode = layoutedNodes.find(n => n.id === edge.source);
-          const sourcePin = sourceNode?.data.outputs.find((p: any) => p.id === edge.sourceHandle);
-          let color = UE_COLORS.Default;
-          let width = 2;
-          if (sourcePin) {
-             switch(sourcePin.type) {
-                 case PinType.Exec: color = UE_COLORS.Exec; width = 2.5; break;
-                 case PinType.Boolean: color = UE_COLORS.Boolean; break;
-                 case PinType.Integer: color = UE_COLORS.Integer; break;
-                 case PinType.Float: color = UE_COLORS.Float; break;
-                 case PinType.String: color = UE_COLORS.String; break;
-                 case PinType.Vector: color = UE_COLORS.Vector; break;
-                 case PinType.Rotator: color = UE_COLORS.Rotator; break;
-                 case PinType.Object: color = UE_COLORS.Object; break;
-                 case PinType.Class: color = UE_COLORS.Class; break;
-                 case PinType.Struct: color = UE_COLORS.Struct; break;
-                 case PinType.Name: color = UE_COLORS.Name; break;
-                 case PinType.Text: color = UE_COLORS.Text; break;
-             }
-          }
-          return {
-              ...edge,
-              type: 'default',
-              style: { stroke: color, strokeWidth: width },
-              animated: false
-          }
-      });
-
-      setNodes(layoutedNodes);
-      setEdges(coloredEdges);
+      populateBlueprintFromResult(result);
 
       if (verboseMode) {
         addLog('success', 'Graph generation complete.');
@@ -447,6 +492,29 @@ function App() {
   const handleAddFunction = () => {
     const id = `Func_${Date.now()}`;
     setFunctions([...functions, { id, name: 'NewFunction', inputs: [], outputs: [] }]);
+  };
+
+  const handleLoadSampleGraph = () => {
+    const { nodes: sampleNodes, edges: sampleEdges } = instantiateBlueprintPlan(
+      SAMPLE_BLUEPRINT_PLAN.nodePlan,
+      SAMPLE_BLUEPRINT_PLAN.edgePlan
+    );
+
+    populateBlueprintFromResult({
+      nodes: sampleNodes,
+      edges: sampleEdges,
+      summary: "- Sample blueprint preview\n- No Gemini request made",
+      cppCode: SAMPLE_CPP_SNIPPET,
+      targetClass: "BP_SamplePreview",
+      variables: [],
+      functions: [],
+      sources: []
+    });
+
+    setPrompt('');
+    setError(null);
+    setCompileStatus('dirty');
+    addLog('info', 'Loaded sample blueprint preview (offline).');
   };
 
   // Reusable C++ View Renderer
@@ -719,6 +787,13 @@ function App() {
                  >
                    {loading && !verboseMode ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} fill="white" />}
                    {loading ? (verboseMode ? 'Generating...' : 'Thinking...') : 'Generate Logic'}
+                 </button>
+                 <button
+                   type="button"
+                   onClick={handleLoadSampleGraph}
+                   className="w-full border border-dashed border-neutral-600 hover:border-blue-500 text-neutral-400 hover:text-white rounded py-1 text-[11px] font-semibold uppercase tracking-wide transition-colors h-8"
+                 >
+                   Load Sample Graph (no AI)
                  </button>
                </form>
 
