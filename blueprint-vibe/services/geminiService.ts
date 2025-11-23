@@ -329,8 +329,17 @@ export const generateBlueprint = async (prompt: string): Promise<GeneratedBluepr
         sources: parsed.sources || []
     };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini API Error:", error);
-    throw new Error(`Gemini API failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+
+    const rawMessage = error?.message || "";
+    const isQuota = rawMessage.toLowerCase().includes("quota") || rawMessage.includes("RESOURCE_EXHAUSTED") || rawMessage.includes("429");
+    const friendlyMessage = isQuota
+      ? "Gemini quota exceeded for this API key. Add your own key in Settings (top right) or try again later."
+      : "Gemini API failed. Check that your API key is valid and has quota.";
+
+    const normalized = new Error(friendlyMessage);
+    (normalized as any).cause = error;
+    throw normalized;
   }
 };

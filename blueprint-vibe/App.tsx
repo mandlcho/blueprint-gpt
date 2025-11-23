@@ -431,8 +431,9 @@ function App() {
     } catch (err: any) {
       console.error(err);
       if (thinkingInterval.current) clearInterval(thinkingInterval.current);
-      setError("Failed to generate blueprint. Please try again.");
-      addLog('error', `Generation failed: ${err.message}`);
+      const friendlyError = err?.message || "Failed to generate blueprint. Please try again.";
+      setError(friendlyError);
+      addLog('error', `Generation failed: ${friendlyError}`);
     } finally {
       setLoading(false);
     }
