@@ -43,6 +43,16 @@ type BlueprintElement = HTMLElement & {
   mousePosition?: [number, number];
 };
 
+const waitForTemplate = async (element: BlueprintElement, retries = 20, delay = 50) => {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    if (element.template?.getPasteInputObject) {
+      return element.template;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+  return element.template;
+};
+
 const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
   const blueprintRef = useRef<BlueprintElement | null>(null);
   const blueprintText = useMemo(
@@ -83,7 +93,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
 
         if (!blueprintText) return;
 
-        const templateApi = blueprintEl.template;
+        const templateApi = await waitForTemplate(blueprintEl);
         const pasteApi = templateApi?.getPasteInputObject?.();
         if (!pasteApi) {
           console.warn("ueblueprint template not ready yet.");
