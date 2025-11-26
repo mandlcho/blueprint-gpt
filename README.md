@@ -8,12 +8,6 @@ Logic creation using blueprints made easy.
 
 <img src="media/2025-11-23/blueprint-demo.gif" alt="blueprint-gpt demo" style="max-width: 960px; width: 100%; border: 1px solid #ddd; border-radius: 8px;" />
 
-## Live LLM setup
-
-- Copy `blueprint-vibe/.env.example` to `.env.local` (kept out of git) and set whichever keys you have: `GEMINI_API_KEY` for Google AI Studio, `OPENAI_API_KEY`/`CODEX_API_KEY` for OpenAI GPT or Codex.
-- Alternatively, open the app, click **Settings** (top-right), paste your keys, and choose the provider (Gemini, OpenAI, or Auto). Auto prefers Gemini when both exist, and falls back to OpenAI if not.
-- Keys are read at runtime, so you can flip providers without rebuilding.
-
 ## Roadmap
 
 - See `ROADMAP.md` for details.

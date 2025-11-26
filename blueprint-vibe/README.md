@@ -15,10 +15,6 @@ View your app in AI Studio: https://ai.studio/apps/drive/1XZo9cq9-u2cFOH3UpvLaXz
 
 1. Install dependencies:
    `npm install`
-2. Copy `.env.example` to `.env.local` and set the keys you want to use:
-   - `GEMINI_API_KEY` for Google AI Studio (Gemini)
-   - `OPENAI_API_KEY` or `CODEX_API_KEY` for OpenAI GPT/Codex style models
+2. Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` to your Gemini API key (nothing is committed to the repo)
 3. Run the app:
    `npm run dev`
-
-You can also enter keys in the in-app **Settings → API Keys** modal instead of `.env.local`. Choose which provider to call (Gemini, OpenAI, or Auto) inside the modal—Auto prefers Gemini when both keys are present and falls back to OpenAI if only that key exists.

@@ -33,7 +33,7 @@ import {
   OnReconnect,
   ReactFlowProvider
 } from '@xyflow/react';
-import { generateBlueprint, ProviderPreference } from './services/geminiService';
+import { generateBlueprint } from './services/geminiService';
 import { GeneratedBlueprint, BlueprintNodeData, BlueprintVariable, BlueprintFunction, PinType, UE_COLORS } from './types';
 import { instantiateBlueprintPlan } from './ue/nodeFactory';
 import BlueprintCanvas from './components/BlueprintCanvas';
@@ -61,270 +61,41 @@ const THINKING_MESSAGES = [
 const SAMPLE_BLUEPRINT_PLAN = {
   nodePlan: [
     {
-      id: "EntryEvent",
+      id: "CustomEvent1",
       nodeKey: "CustomEvent",
-      comment: "Offline preview entry point"
+      comment: "Entry event (sample)"
     },
     {
-      id: "SetupSequence",
-      nodeKey: "Sequence",
-      comment: "Fan out to multiple exec paths"
-    },
-    {
-      id: "DoOnceNode",
-      nodeKey: "DoOnce",
-      comment: "Macro gating example",
-      pinValues: {
-        "Start Closed": "false"
-      }
-    },
-    {
-      id: "FlipFlopNode",
-      nodeKey: "FlipFlop",
-      comment: "Alternates between outputs"
-    },
-    {
-      id: "FirstPrint",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Sequence path A -> First activation",
-        Duration: "1.0"
-      }
-    },
-    {
-      id: "DelayNode",
-      nodeKey: "Delay",
-      pinValues: {
-        Duration: "0.35"
-      }
-    },
-    {
-      id: "NavGridNode",
-      nodeKey: "AddLocalNavigationGridForBox",
-      comment: "Sample gameplay function",
-      pinValues: {
-        Extent: '"(X=256,Y=256,Z=64)"',
-        Rotation: '"(Pitch=0,Yaw=45,Roll=0)"',
-        Radius2D: "4",
-        Height: "120.0",
-        bRebuildGrids: "true"
-      }
-    },
-    {
-      id: "NavGridPrint",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Navigation grid added after delay",
-        bPrintToScreen: "false"
-      }
-    },
-    {
-      id: "TraceNode",
-      nodeKey: "LineTraceForObjects",
-      comment: "Physics style call",
-      pinValues: {
-        Start: '"(X=0,Y=0,Z=240)"',
-        End: '"(X=0,Y=0,Z=-200)"',
-        DrawDebugType: "ForDuration",
-        DrawTime: "0.75"
-      }
-    },
-    {
-      id: "TraceBranch",
+      id: "BranchDemo",
       nodeKey: "Branch",
-      comment: "True when trace hits"
+      comment: "Decide whether to log a message"
     },
     {
-      id: "TraceHitPrint",
+      id: "PrintNode",
       nodeKey: "PrintString",
       pinValues: {
-        InString: "Trace hit actor",
-        TextColor: '"(R=0,G=0.85,B=0,A=1)"',
-        Duration: "0.6"
-      }
-    },
-    {
-      id: "TraceMissPrint",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Trace missed",
-        TextColor: '"(R=1,G=0.35,B=0,A=1)"',
-        Duration: "0.6"
-      }
-    },
-    {
-      id: "LoopNode",
-      nodeKey: "ForEachLoop",
-      comment: "Iterate mock array",
-      pinValues: {
-        Array: "[BP_Light, BP_Door, BP_Switch]"
-      }
-    },
-    {
-      id: "IsValidNode",
-      nodeKey: "IsValid",
-      comment: "Object guard"
-    },
-    {
-      id: "LoopPrint",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Valid loop entry processed",
-        bPrintToLog: "true"
-      }
-    },
-    {
-      id: "LoopComplete",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Loop complete",
-        bPrintToScreen: "false"
-      }
-    },
-    {
-      id: "AxisEvent",
-      nodeKey: "MouseX",
-      comment: "Input axis sample"
-    },
-    {
-      id: "AxisCompare",
-      nodeKey: ">=",
-      comment: "Simple threshold",
-      pinValues: {
-        B: "0.5"
-      }
-    },
-    {
-      id: "AxisBranch",
-      nodeKey: "Branch",
-      comment: "Gates axis intensity"
-    },
-    {
-      id: "AxisHigh",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Fast camera pan detected"
-      }
-    },
-    {
-      id: "AxisLow",
-      nodeKey: "PrintString",
-      pinValues: {
-        InString: "Axis idle / below threshold",
-        bPrintToScreen: "false"
+        InString: "Sample preview ready!"
       }
     }
   ],
   edgePlan: [
     {
-      source: { node: "EntryEvent", pin: "then" },
-      target: { node: "SetupSequence", pin: "execute" }
+      source: { node: "CustomEvent1", pin: "then" },
+      target: { node: "BranchDemo", pin: "execute" }
     },
     {
-      source: { node: "SetupSequence", pin: "then_0" },
-      target: { node: "DoOnceNode", pin: "execute" }
-    },
-    {
-      source: { node: "DoOnceNode", pin: "Completed" },
-      target: { node: "FlipFlopNode", pin: "Pin" }
-    },
-    {
-      source: { node: "FlipFlopNode", pin: "A" },
-      target: { node: "FirstPrint", pin: "execute" }
-    },
-    {
-      source: { node: "FlipFlopNode", pin: "B" },
-      target: { node: "DelayNode", pin: "execute" }
-    },
-    {
-      source: { node: "DelayNode", pin: "then" },
-      target: { node: "NavGridNode", pin: "execute" }
-    },
-    {
-      source: { node: "NavGridNode", pin: "then" },
-      target: { node: "NavGridPrint", pin: "execute" }
-    },
-    {
-      source: { node: "SetupSequence", pin: "then_1" },
-      target: { node: "TraceNode", pin: "execute" }
-    },
-    {
-      source: { node: "TraceNode", pin: "then" },
-      target: { node: "TraceBranch", pin: "execute" }
-    },
-    {
-      source: { node: "TraceBranch", pin: "then" },
-      target: { node: "TraceHitPrint", pin: "execute" }
-    },
-    {
-      source: { node: "TraceBranch", pin: "else" },
-      target: { node: "TraceMissPrint", pin: "execute" }
-    },
-    {
-      source: { node: "SetupSequence", pin: "then_2" },
-      target: { node: "LoopNode", pin: "Exec" }
-    },
-    {
-      source: { node: "LoopNode", pin: "LoopBody" },
-      target: { node: "IsValidNode", pin: "exec" }
-    },
-    {
-      source: { node: "IsValidNode", pin: "Is Valid" },
-      target: { node: "LoopPrint", pin: "execute" }
-    },
-    {
-      source: { node: "LoopNode", pin: "Completed" },
-      target: { node: "LoopComplete", pin: "execute" }
-    },
-    {
-      source: { node: "AxisEvent", pin: "then" },
-      target: { node: "AxisBranch", pin: "execute" }
-    },
-    {
-      source: { node: "AxisBranch", pin: "then" },
-      target: { node: "AxisHigh", pin: "execute" }
-    },
-    {
-      source: { node: "AxisBranch", pin: "else" },
-      target: { node: "AxisLow", pin: "execute" }
-    },
-    {
-      source: { node: "AxisEvent", pin: "AxisValue" },
-      target: { node: "AxisCompare", pin: "A" }
-    },
-    {
-      source: { node: "AxisCompare", pin: "ReturnValue" },
-      target: { node: "AxisBranch", pin: "Condition" }
-    },
-    {
-      source: { node: "TraceNode", pin: "ReturnValue" },
-      target: { node: "TraceBranch", pin: "Condition" }
-    },
-    {
-      source: { node: "TraceNode", pin: "OutHit_Location" },
-      target: { node: "NavGridNode", pin: "Location" }
-    },
-    {
-      source: { node: "TraceNode", pin: "OutHit_HitActor" },
-      target: { node: "IsValidNode", pin: "InputObject" }
-    },
-    {
-      source: { node: "LoopNode", pin: "Array Element" },
-      target: { node: "LoopPrint", pin: "InString" }
+      source: { node: "BranchDemo", pin: "then" },
+      target: { node: "PrintNode", pin: "execute" }
     }
   ]
 };
 
 const SAMPLE_CPP_SNIPPET = `#include "SamplePreviewActor.h"
 
-void ASamplePreviewActor::Tick(float DeltaSeconds)
+void ASamplePreviewActor::BeginPlay()
 {
-    Super::Tick(DeltaSeconds);
-    const bool bTraceHit = SampleHelpers::DebugTrace(GetActorLocation());
-    if (bTraceHit)
-    {
-        UE_LOG(LogTemp, Log, TEXT("Trace resolved actor, broadcasting status"));
-    }
+    Super::BeginPlay();
+    UE_LOG(LogTemp, Log, TEXT("Sample preview ready!"));
 }`;
 
 // Simple C++ Syntax Highlighter for Vibe
@@ -383,9 +154,6 @@ function App() {
   // Fallback to old key name for backward compatibility during migration
   const [userGeminiKey, setUserGeminiKey] = useState(localStorage.getItem('BLUEPRINT_VIBE_GEMINI_KEY') || localStorage.getItem('BLUEPRINT_VIBE_API_KEY') || '');
   const [userOpenAIKey, setUserOpenAIKey] = useState(localStorage.getItem('BLUEPRINT_VIBE_OPENAI_KEY') || '');
-  const [providerPreference, setProviderPreference] = useState<ProviderPreference>(
-    (localStorage.getItem('BLUEPRINT_VIBE_PROVIDER') as ProviderPreference) || 'auto'
-  );
   
   // C++ State
   const [generatedCpp, setGeneratedCpp] = useState<string>('');
@@ -600,7 +368,6 @@ function App() {
     localStorage.setItem('BLUEPRINT_VIBE_OPENAI_KEY', userOpenAIKey);
     // Maintain backward compatibility for now
     localStorage.setItem('BLUEPRINT_VIBE_API_KEY', userGeminiKey);
-    localStorage.setItem('BLUEPRINT_VIBE_PROVIDER', providerPreference);
     
     setShowSettings(false);
     addLog('success', 'API Keys saved to local storage.');
@@ -693,7 +460,7 @@ function App() {
     }
 
     try {
-      const result = await generateBlueprint(prompt, providerPreference);
+      const result = await generateBlueprint(prompt);
       
       if (thinkingInterval.current) clearInterval(thinkingInterval.current);
 
@@ -736,8 +503,7 @@ function App() {
     populateBlueprintFromResult({
       nodes: sampleNodes,
       edges: sampleEdges,
-      summary:
-        "- Sequence preview covering events, traces, loops, and math\n- Demonstrates exec + data wires without hitting Gemini",
+      summary: "- Sample blueprint preview\n- No Gemini request made",
       cppCode: SAMPLE_CPP_SNIPPET,
       targetClass: "BP_SamplePreview",
       variables: [],
@@ -839,43 +605,7 @@ function App() {
                          />
                       </div>
                       <p className="text-[10px] text-neutral-500">
-                         Works with GPT-4o mini / legacy Codex style keys. Stored locally only.
-                      </p>
-                   </div>
-
-                   <hr className="border-neutral-800" />
-
-                   {/* PROVIDER SELECTION */}
-                   <div className="flex flex-col gap-2">
-                      <label className="text-xs font-semibold text-gray-400 uppercase flex items-center gap-1">
-                        <Cpu size={12} className="text-blue-400" /> Model Provider
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { value: 'auto', label: 'Auto', helper: 'Smart pick', Icon: Cpu },
-                          { value: 'gemini', label: 'Gemini', helper: 'Google AI Studio', Icon: Zap },
-                          { value: 'openai', label: 'OpenAI', helper: 'GPT / Codex', Icon: Bot }
-                        ].map(({ value, label, helper, Icon }) => (
-                          <button
-                            key={value}
-                            type="button"
-                            onClick={() => setProviderPreference(value as ProviderPreference)}
-                            className={`flex flex-col gap-1 rounded border px-3 py-2 text-left transition-all ${
-                              providerPreference === value
-                                ? 'border-blue-500/70 bg-blue-500/10 text-white shadow-[0_0_12px_rgba(0,112,224,0.35)]'
-                                : 'border-neutral-700 bg-[#0a0a0a] text-neutral-400 hover:border-neutral-500'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Icon size={13} className={providerPreference === value ? 'text-blue-300' : 'text-neutral-500'} />
-                              <span className="text-[11px] font-semibold uppercase tracking-wide">{label}</span>
-                            </div>
-                            <span className="text-[9px] text-neutral-500">{helper}</span>
-                          </button>
-                        ))}
-                      </div>
-                      <p className="text-[10px] text-neutral-500">
-                        Auto prefers Gemini when both keys are set, otherwise falls back to OpenAI.
+                         Support for OpenAI models coming soon. Keys are stored locally.
                       </p>
                    </div>
 
