@@ -37,6 +37,7 @@ type BlueprintElement = HTMLElement & {
     getPasteInputObject?: () => { pasted: (value: string) => void };
     centerContentInViewport?: (smooth?: boolean) => void;
   };
+  mousePosition?: [number, number];
   updateComplete?: Promise<unknown>;
   getNodes?: (selected?: boolean) => any[];
   removeGraphElement?: (...elements: any[]) => void;
@@ -64,8 +65,14 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
 
         if (cancelled) return;
 
-        if (typeof blueprintEl.getNodes === "function" && typeof blueprintEl.removeGraphElement === "function") {
-          const existing = blueprintEl.getNodes() || [];
+        if (
+          typeof blueprintEl.getNodes === "function" &&
+          typeof blueprintEl.removeGraphElement === "function"
+        ) {
+          const existing = (blueprintEl.getNodes() || []).filter(
+            (node: Element & { isConnected?: boolean }) =>
+              (node?.closest?.("ueb-blueprint") ?? null) === blueprintEl && node.isConnected !== false
+          );
           if (existing.length) {
             blueprintEl.removeGraphElement(...existing);
           }
@@ -80,6 +87,13 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
         if (!pasteApi) {
           console.warn("ueblueprint template is not ready yet.");
           return;
+        }
+
+        // Align paste anchor with the viewport center (matches internal template load behavior)
+        const width = blueprintEl.clientWidth || blueprintEl.offsetWidth || 0;
+        const height = blueprintEl.clientHeight || blueprintEl.offsetHeight || 0;
+        if (width > 0 && height > 0) {
+          blueprintEl.mousePosition = [Math.round(width / 2), Math.round(height / 2)];
         }
 
         pasteApi.pasted(blueprintText);
