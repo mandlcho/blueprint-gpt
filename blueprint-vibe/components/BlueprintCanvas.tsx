@@ -8,8 +8,9 @@ import "ueblueprint/dist/ueblueprint.js";
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "ue-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      "ueb-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         "data-zoom"?: string;
+        "data-type"?: string;
       };
     }
   }
@@ -57,10 +58,9 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
 
   return (
     <div className="w-full h-full bg-[#050505]" onContextMenu={(e) => e.preventDefault()}>
-      <ue-blueprint
+      <ueb-blueprint
         key={blueprintKey}
-        className="ueb-host"
-        data-zoom="-3"
+        data-zoom="-4"
         style={{
           display: "block",
           width: "100%",
@@ -69,7 +69,7 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
         }}
       >
         <template>{blueprintText}</template>
-      </ue-blueprint>
+      </ueb-blueprint>
     </div>
   );
 };
