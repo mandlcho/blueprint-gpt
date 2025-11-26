@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Edge, Node } from "@xyflow/react";
 import { BPNode } from "../types";
 import { buildUeClipboard } from "../utils/ueBlueprintSerializer";
@@ -8,10 +8,11 @@ import "ueblueprint/dist/ueblueprint.js";
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "ueb-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        "data-zoom"?: string;
-        "data-type"?: string;
-      };
+      "ueb-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> &
+        React.RefAttributes<HTMLElement> & {
+          "data-zoom"?: string;
+          "data-type"?: string;
+        };
     }
   }
 }
@@ -31,35 +32,88 @@ interface BlueprintCanvasProps {
   onPaneClick?: any;
 }
 
-const hashString = (value: string) => {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0; // Convert to 32bit integer
-  }
-  return `ueb-${Math.abs(hash)}`;
+type BlueprintElement = HTMLElement & {
+  template?: {
+    getPasteInputObject?: () => { pasted: (value: string) => void };
+    centerContentInViewport?: (smooth?: boolean) => void;
+  };
+  updateComplete?: Promise<unknown>;
+  getNodes?: (selected?: boolean) => any[];
+  removeGraphElement?: (...elements: any[]) => void;
+  mousePosition?: [number, number];
 };
 
 const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
+  const blueprintRef = useRef<BlueprintElement | null>(null);
   const blueprintText = useMemo(
     () => buildUeClipboard(nodes as BPNode[], edges),
     [nodes, edges]
   );
 
-  const blueprintKey = useMemo(() => hashString(blueprintText || "empty"), [blueprintText]);
+  useEffect(() => {
+    const blueprintEl = blueprintRef.current;
+    if (!blueprintEl) return;
 
-  if (!blueprintText) {
-    return (
-      <div className="w-full h-full bg-[#0f0f0f] text-neutral-500 flex items-center justify-center text-xs">
-        Blueprint preview unavailable.
-      </div>
-    );
-  }
+    let cancelled = false;
+
+    const syncGraph = async () => {
+      try {
+        if (typeof customElements?.whenDefined === "function") {
+          await customElements.whenDefined("ueb-blueprint");
+        }
+
+        if (blueprintEl.updateComplete instanceof Promise) {
+          await blueprintEl.updateComplete;
+        }
+
+        if (cancelled) return;
+
+        if (
+          typeof blueprintEl.getNodes === "function" &&
+          typeof blueprintEl.removeGraphElement === "function"
+        ) {
+          const existing = (blueprintEl.getNodes() || []).filter(
+            (node: Element & { isConnected?: boolean }) =>
+              node && node.isConnected !== false && node.closest("ueb-blueprint") === blueprintEl
+          );
+          if (existing.length) {
+            blueprintEl.removeGraphElement(...existing);
+          }
+        }
+
+        if (!blueprintText) return;
+
+        const templateApi = blueprintEl.template;
+        const pasteApi = templateApi?.getPasteInputObject?.();
+        if (!pasteApi) {
+          console.warn("ueblueprint template not ready yet.");
+          return;
+        }
+
+        const width = blueprintEl.clientWidth || blueprintEl.offsetWidth || 0;
+        const height = blueprintEl.clientHeight || blueprintEl.offsetHeight || 0;
+        if (width > 0 && height > 0) {
+          blueprintEl.mousePosition = [Math.round(width / 2), Math.round(height / 2)];
+        }
+
+        pasteApi.pasted(blueprintText);
+        templateApi.centerContentInViewport?.(false);
+      } catch (error) {
+        console.error("Failed to sync blueprint preview", error);
+      }
+    };
+
+    syncGraph();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [blueprintText]);
 
   return (
-    <div className="w-full h-full bg-[#050505]" onContextMenu={(e) => e.preventDefault()}>
+    <div className="relative w-full h-full bg-[#050505]" onContextMenu={(e) => e.preventDefault()}>
       <ueb-blueprint
-        key={blueprintKey}
+        ref={blueprintRef}
         data-zoom="-4"
         style={{
           display: "block",
@@ -67,9 +121,12 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
           height: "100%",
           ["--ueb-height" as any]: "100%"
         }}
-      >
-        <template>{blueprintText}</template>
-      </ueb-blueprint>
+      />
+      {!blueprintText && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-neutral-500">
+          Blueprint preview unavailable.
+        </div>
+      )}
     </div>
   );
 };
