@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { Edge, Node } from "@xyflow/react";
 import { BPNode } from "../types";
 import { buildUeClipboard } from "../utils/ueBlueprintSerializer";
@@ -8,8 +8,7 @@ import "ueblueprint/dist/ueblueprint.js";
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      "ueb-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> &
-        React.RefAttributes<HTMLElement> & {
+      "ueb-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         "data-zoom"?: string;
         "data-type"?: string;
       };
@@ -32,74 +31,35 @@ interface BlueprintCanvasProps {
   onPaneClick?: any;
 }
 
-type BlueprintElement = HTMLElement & {
-  template?: {
-    getPasteInputObject?: () => { pasted: (value: string) => void };
-    centerContentInViewport?: (smooth?: boolean) => void;
-  };
-  updateComplete?: Promise<unknown>;
-  getNodes?: (selected?: boolean) => any[];
-  removeGraphElement?: (...elements: any[]) => void;
+const hashString = (value: string) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  return `ueb-${Math.abs(hash)}`;
 };
 
 const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
-  const blueprintRef = useRef<BlueprintElement | null>(null);
-
   const blueprintText = useMemo(
     () => buildUeClipboard(nodes as BPNode[], edges),
     [nodes, edges]
   );
 
-  useEffect(() => {
-    const blueprintEl = blueprintRef.current;
-    if (!blueprintEl) return;
+  const blueprintKey = useMemo(() => hashString(blueprintText || "empty"), [blueprintText]);
 
-    let cancelled = false;
-
-    const syncGraph = async () => {
-      try {
-        if (blueprintEl.updateComplete instanceof Promise) {
-          await blueprintEl.updateComplete;
-        }
-
-        if (cancelled) return;
-
-        if (typeof blueprintEl.getNodes === "function" && typeof blueprintEl.removeGraphElement === "function") {
-          const existing = blueprintEl.getNodes() || [];
-          if (existing.length) {
-            blueprintEl.removeGraphElement(...existing);
-          }
-        }
-
-        if (!blueprintText) {
-          return;
-        }
-
-        const templateApi = blueprintEl.template;
-        const pasteApi = templateApi?.getPasteInputObject?.();
-        if (!pasteApi) {
-          console.warn("ueblueprint template is not ready yet.");
-          return;
-        }
-
-        pasteApi.pasted(blueprintText);
-        templateApi.centerContentInViewport?.(false);
-      } catch (error) {
-        console.error("Failed to sync blueprint preview", error);
-      }
-    };
-
-    syncGraph();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [blueprintText]);
+  if (!blueprintText) {
+    return (
+      <div className="w-full h-full bg-[#0f0f0f] text-neutral-500 flex items-center justify-center text-xs">
+        Blueprint preview unavailable.
+      </div>
+    );
+  }
 
   return (
-    <div className="relative w-full h-full bg-[#050505]" onContextMenu={(e) => e.preventDefault()}>
+    <div className="w-full h-full bg-[#050505]" onContextMenu={(e) => e.preventDefault()}>
       <ueb-blueprint
-        ref={blueprintRef}
+        key={blueprintKey}
         data-zoom="-4"
         style={{
           display: "block",
@@ -107,12 +67,9 @@ const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
           height: "100%",
           ["--ueb-height" as any]: "100%"
         }}
-      />
-      {!blueprintText && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-neutral-500">
-          Blueprint preview unavailable.
-        </div>
-      )}
+      >
+        <template>{blueprintText}</template>
+      </ueb-blueprint>
     </div>
   );
 };
