@@ -1,21 +1,24 @@
 import "ueblueprint/dist/css/ueb-style.min.css";
 import "ueblueprint/dist/ueblueprint.js";
+import { createElement } from "react";
 import { SAMPLE_BLUEPRINT } from "./sampleBlueprint";
 
-declare global {
-  namespace React.JSX {
-    interface IntrinsicElements {
-      "ueb-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-    }
-  }
+type BlueprintProps = {
+  blueprintHtml: string;
+};
+
+function BlueprintViewer({ blueprintHtml }: BlueprintProps) {
+  return createElement(
+    "ueb-blueprint",
+    null,
+    createElement("template", { dangerouslySetInnerHTML: { __html: blueprintHtml } })
+  );
 }
 
 function App() {
   return (
     <code>
-      <ueb-blueprint>
-        <template dangerouslySetInnerHTML={{ __html: SAMPLE_BLUEPRINT }} />
-      </ueb-blueprint>
+      <BlueprintViewer blueprintHtml={SAMPLE_BLUEPRINT} />
     </code>
   );
 }
