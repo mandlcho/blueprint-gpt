@@ -1,108 +1,75 @@
-import React from 'react';
-import { 
-  ReactFlow, 
-  Background, 
-  BackgroundVariant, 
-  ConnectionLineType,
-  Node,
-  Edge,
-  OnNodesChange,
-  OnEdgesChange,
-  OnConnect,
-  OnReconnect,
-  NodeMouseHandler,
-  EdgeMouseHandler,
-  SelectionMode
-} from '@xyflow/react';
-import CustomBlueprintNode from './CustomBlueprintNode';
-import { BPNode } from '../types';
+import React, { useMemo } from "react";
+import { Edge, Node } from "@xyflow/react";
+import { BPNode } from "../types";
+import { buildUeClipboard } from "../utils/ueBlueprintSerializer";
+import "ueblueprint/dist/css/ueb-style.min.css";
+import "ueblueprint/dist/ueblueprint.js";
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "ue-blueprint": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        "data-zoom"?: string;
+      };
+    }
+  }
+}
 
 interface BlueprintCanvasProps {
   nodes: Node[];
   edges: Edge[];
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-  onReconnect?: OnReconnect;
-  onReconnectStart?: () => void;
-  onReconnectEnd?: (event: MouseEvent | TouchEvent, edge: Edge) => void;
-  onEdgeClick?: EdgeMouseHandler;
-  onNodeClick?: NodeMouseHandler;
-  onPaneClick?: () => void;
+  // Legacy props kept for compatibility with existing App signatures
+  onNodesChange?: any;
+  onEdgesChange?: any;
+  onConnect?: any;
+  onReconnect?: any;
+  onReconnectStart?: any;
+  onReconnectEnd?: any;
+  onEdgeClick?: any;
+  onNodeClick?: any;
+  onPaneClick?: any;
 }
 
-const nodeTypes = {
-  customBlueprintNode: CustomBlueprintNode,
+const hashString = (value: string) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  return `ueb-${Math.abs(hash)}`;
 };
 
-const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ 
-  nodes, 
-  edges, 
-  onNodesChange, 
-  onEdgesChange, 
-  onConnect, 
-  onReconnect, 
-  onReconnectStart,
-  onReconnectEnd,
-  onEdgeClick,
-  onNodeClick,
-  onPaneClick
-}) => {
+const BlueprintCanvas: React.FC<BlueprintCanvasProps> = ({ nodes, edges }) => {
+  const blueprintText = useMemo(
+    () => buildUeClipboard(nodes as BPNode[], edges),
+    [nodes, edges]
+  );
+
+  const blueprintKey = useMemo(() => hashString(blueprintText || "empty"), [blueprintText]);
+
+  if (!blueprintText) {
+    return (
+      <div className="w-full h-full bg-[#0f0f0f] text-neutral-500 flex items-center justify-center text-xs">
+        Blueprint preview unavailable.
+      </div>
+    );
+  }
 
   return (
-    <div 
-      className="w-full h-full bg-[#1A1A1A]" 
-      onContextMenu={(e) => e.preventDefault()} // Prevent browser context menu
-    >
-      <ReactFlow<BPNode>
-        nodes={nodes as BPNode[]}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onReconnect={onReconnect}
-        onReconnectStart={onReconnectStart}
-        onReconnectEnd={onReconnectEnd}
-        onEdgeClick={onEdgeClick}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
-        nodeTypes={nodeTypes}
-        fitView
-        minZoom={0.1}
-        maxZoom={2}
-        snapToGrid={true}
-        snapGrid={[16, 16]}
-        proOptions={{ hideAttribution: true }} 
-        
-        /* UE5 Mouse Behavior */
-        panOnDrag={[2]}        
-        selectionOnDrag={true} 
-        panOnScroll={false}    
-        zoomOnScroll={true}    
-        selectionMode={SelectionMode.Partial}
-
-        defaultEdgeOptions={{
-            type: 'default', 
-            animated: false,
-            style: { stroke: '#fff', strokeWidth: 2.5 },
+    <div className="w-full h-full bg-[#050505]" onContextMenu={(e) => e.preventDefault()}>
+      <ue-blueprint
+        key={blueprintKey}
+        className="ueb-host"
+        data-zoom="-3"
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          ["--ueb-height" as any]: "100%"
         }}
-        connectionLineType={ConnectionLineType.Bezier}
-        connectionLineStyle={{ stroke: '#fff', strokeWidth: 2 }}
       >
-        <Background 
-            variant={BackgroundVariant.Lines} 
-            color="#262626" 
-            gap={16} 
-            size={1} 
-        />
-        <Background 
-            variant={BackgroundVariant.Lines} 
-            color="#000" 
-            gap={128} 
-            size={2} 
-            className="opacity-40"
-        />
-      </ReactFlow>
+        <template>{blueprintText}</template>
+      </ue-blueprint>
     </div>
   );
 };
