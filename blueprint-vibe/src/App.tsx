@@ -8,7 +8,7 @@ import { UE_NODE_KEYS } from "./ue/nodeCatalog";
 const SAMPLE_NODE_PLAN: BlueprintNodePlan[] = [
   {
     id: "CustomEvent_Entry",
-    nodeKey: "K2NodeCustomEvent",
+    nodeKey: "CustomEvent",
     comment: "Entry point",
     labelOverride: "Custom Event",
   },
