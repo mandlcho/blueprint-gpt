@@ -298,6 +298,8 @@
         let selectedIndex = 0;
         let filteredNodes = [];
         let contextMenuPosition = { x: 0, y: 0 };
+        let rightClickStartPos = { x: 0, y: 0 };
+        let isDragging = false;
 
         // Load nodes database
         async function loadNodesDatabase() {
@@ -348,7 +350,7 @@
 
             // Filter nodes
             if (query.trim() === '') {
-                filteredNodes = nodesDatabase.slice(0, 50); // Show first 50 nodes
+                filteredNodes = nodesDatabase.slice(0, 100); // Show first 100 nodes
             } else {
                 const searchLower = query.toLowerCase();
                 filteredNodes = nodesDatabase.filter(node => {
@@ -359,7 +361,7 @@
                     const keywordMatch = node.keywords?.toLowerCase().includes(searchLower);
 
                     return nameMatch || classMatch || typeMatch || descMatch || keywordMatch;
-                }).slice(0, 50); // Limit results
+                }).slice(0, 100); // Show more results
             }
 
             // Reset selected index
@@ -455,16 +457,24 @@ End Object`;
         // Spawn node on canvas
         function spawnNode(node) {
             try {
-                console.log('Spawning node:', node.className, 'at position:', contextMenuPosition);
+                console.log('=== Spawning node ===');
+                console.log('Node:', node.className, node.displayName);
+                console.log('Position:', contextMenuPosition);
 
                 const canvas = document.querySelector('ueb-blueprint');
                 if (!canvas) {
                     console.error('Blueprint canvas not found');
+                    alert('Blueprint canvas not found!');
                     return;
                 }
 
+                console.log('Canvas found:', canvas);
+                console.log('Canvas properties:', { scrollX: canvas.scrollX, scrollY: canvas.scrollY, zoom: canvas.zoom });
+
                 // Convert screen coordinates to blueprint canvas coordinates
                 const rect = canvas.getBoundingClientRect();
+                console.log('Canvas rect:', rect);
+
                 const scrollX = canvas.scrollX || 0;
                 const scrollY = canvas.scrollY || 0;
                 const zoom = canvas.zoom || 0;
@@ -473,10 +483,11 @@ End Object`;
                 // Calculate position relative to canvas
                 const canvasX = (contextMenuPosition.x - rect.left) / zoomFactor + scrollX;
                 const canvasY = (contextMenuPosition.y - rect.top) / zoomFactor + scrollY;
+                console.log('Canvas position:', canvasX, canvasY);
 
                 // Create serialized node
                 const serialization = createNodeSerialization(node, canvasX, canvasY);
-                console.log('Node serialization:', serialization);
+                console.log('Serialization:', serialization);
 
                 // Create node element from serialization
                 if (!window.NodeElement) {
@@ -485,16 +496,27 @@ End Object`;
                     return;
                 }
 
+                console.log('Creating NodeElement...');
                 const nodeElement = window.NodeElement.fromSerializedObject(serialization);
+                console.log('NodeElement created:', nodeElement);
 
                 // Add node to blueprint
-                canvas.addGraphElement(nodeElement);
+                console.log('Adding to blueprint...');
+                if (typeof canvas.addGraphElement === 'function') {
+                    canvas.addGraphElement(nodeElement);
+                    console.log('✓ Node added via addGraphElement');
+                } else {
+                    console.error('addGraphElement is not a function!', typeof canvas.addGraphElement);
+                    console.log('Available canvas methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(canvas)));
+                    alert('Error: addGraphElement method not found on canvas');
+                }
 
                 console.log('✓ Node spawned successfully:', node.displayName || node.className);
 
             } catch (error) {
                 console.error('Error spawning node:', error);
-                alert(`Error spawning node: ${error.message}\n\nThis node type may require additional configuration.`);
+                console.error('Error stack:', error.stack);
+                alert(`Error spawning node: ${error.message}\n\nCheck console for details.`);
             }
 
             hideContextMenu();
@@ -507,17 +529,41 @@ End Object`;
             const canvas = document.querySelector('ueb-blueprint');
             const input = document.getElementById('nodeSearchInput');
 
-            // Right-click to open menu (capture phase to intercept before canvas handlers)
+            // Track mouse down to detect dragging vs clicking
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.button === 2) { // Right mouse button
+                    rightClickStartPos = { x: e.clientX, y: e.clientY };
+                    isDragging = false;
+                }
+            }, true);
+
+            // Track mouse movement to detect dragging
+            canvas.addEventListener('mousemove', (e) => {
+                if (e.buttons === 2) { // Right button is held
+                    const deltaX = Math.abs(e.clientX - rightClickStartPos.x);
+                    const deltaY = Math.abs(e.clientY - rightClickStartPos.y);
+                    if (deltaX > 5 || deltaY > 5) { // Moved more than 5px = dragging
+                        isDragging = true;
+                    }
+                }
+            }, true);
+
+            // Right-click to open menu (only if not dragging)
             canvas.addEventListener('contextmenu', (e) => {
                 if (!nodesDatabase) return;
 
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation(); // Stop other handlers on the same element
+                e.stopImmediatePropagation();
 
-                console.log('Context menu triggered at:', e.clientX, e.clientY);
-                showContextMenu(e.clientX, e.clientY);
-            }, true); // Use capture phase
+                // Only show menu if we weren't dragging
+                if (!isDragging) {
+                    console.log('Context menu triggered at:', e.clientX, e.clientY);
+                    showContextMenu(e.clientX, e.clientY);
+                } else {
+                    console.log('Drag detected, not showing context menu');
+                }
+            }, true);
 
             // Click outside to close
             document.addEventListener('click', (e) => {
