@@ -298,8 +298,7 @@
         let selectedIndex = 0;
         let filteredNodes = [];
         let contextMenuPosition = { x: 0, y: 0 };
-        let rightClickStartPos = { x: 0, y: 0 };
-        let isDragging = false;
+        let lastMousePosition = { x: 0, y: 0 };
 
         // Load nodes database
         async function loadNodesDatabase() {
@@ -348,12 +347,17 @@
             const results = document.getElementById('nodeSearchResults');
             results.innerHTML = '';
 
+            // Only show operation nodes (Function and Flow Control)
+            const operationNodes = nodesDatabase.filter(node =>
+                node.nodeType === 'Function' || node.nodeType === 'Flow Control'
+            );
+
             // Filter nodes
             if (query.trim() === '') {
-                filteredNodes = nodesDatabase.slice(0, 100); // Show first 100 nodes
+                filteredNodes = operationNodes.slice(0, 100);
             } else {
                 const searchLower = query.toLowerCase();
-                filteredNodes = nodesDatabase.filter(node => {
+                filteredNodes = operationNodes.filter(node => {
                     const nameMatch = node.displayName?.toLowerCase().includes(searchLower);
                     const classMatch = node.className?.toLowerCase().includes(searchLower);
                     const typeMatch = node.nodeType?.toLowerCase().includes(searchLower);
@@ -361,7 +365,7 @@
                     const keywordMatch = node.keywords?.toLowerCase().includes(searchLower);
 
                     return nameMatch || classMatch || typeMatch || descMatch || keywordMatch;
-                }).slice(0, 100); // Show more results
+                }).slice(0, 100);
             }
 
             // Reset selected index
@@ -564,41 +568,24 @@ End Object`;
             const canvas = document.querySelector('ueb-blueprint');
             const input = document.getElementById('nodeSearchInput');
 
-            // Track mouse down to detect dragging vs clicking
-            canvas.addEventListener('mousedown', (e) => {
-                if (e.button === 2) { // Right mouse button
-                    rightClickStartPos = { x: e.clientX, y: e.clientY };
-                    isDragging = false;
-                }
-            }, true);
+            // Track mouse position globally
+            document.addEventListener('mousemove', (e) => {
+                lastMousePosition = { x: e.clientX, y: e.clientY };
+            });
 
-            // Track mouse movement to detect dragging
-            canvas.addEventListener('mousemove', (e) => {
-                if (e.buttons === 2) { // Right button is held
-                    const deltaX = Math.abs(e.clientX - rightClickStartPos.x);
-                    const deltaY = Math.abs(e.clientY - rightClickStartPos.y);
-                    if (deltaX > 5 || deltaY > 5) { // Moved more than 5px = dragging
-                        isDragging = true;
+            // Tab key to open node menu
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                    // Only if not already typing in the search input
+                    if (document.activeElement !== input) {
+                        if (!nodesDatabase) return;
+
+                        e.preventDefault();
+                        console.log('Tab pressed - opening node menu at:', lastMousePosition);
+                        showContextMenu(lastMousePosition.x, lastMousePosition.y);
                     }
                 }
-            }, true);
-
-            // Right-click to open menu (only if not dragging)
-            canvas.addEventListener('contextmenu', (e) => {
-                if (!nodesDatabase) return;
-
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-
-                // Only show menu if we weren't dragging
-                if (!isDragging) {
-                    console.log('Context menu triggered at:', e.clientX, e.clientY);
-                    showContextMenu(e.clientX, e.clientY);
-                } else {
-                    console.log('Drag detected, not showing context menu');
-                }
-            }, true);
+            });
 
             // Click outside to close
             document.addEventListener('click', (e) => {
