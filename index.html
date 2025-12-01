@@ -11,6 +11,39 @@
             padding: 0;
             --ueb-height: 100vh;
         }
+
+        .floating-input {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            padding: 8px 16px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background: rgba(40, 40, 40, 0.9);
+            color: #fff;
+            outline: none;
+            min-width: 250px;
+            font-family: 'Roboto', sans-serif;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-input:focus {
+            border-color: rgba(84, 122, 156, 0.8);
+            box-shadow: 0 4px 16px rgba(84, 122, 156, 0.4);
+        }
+
+        .floating-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        ueb-blueprint {
+            position: relative;
+            display: block;
+        }
     </style>
 </head>
 
@@ -19,7 +52,7 @@
         import { Blueprint } from "./dist/ueblueprint.js"
     </script>
     <code>
-        <ueb-blueprint>
+        <ueb-blueprint oncontextmenu="return true;">
             <template>
                 Begin Object Class="/Script/BlueprintGraph.K2Node_FunctionEntry" Name="K2Node_FunctionEntry_11" ExportPath=/Script/BlueprintGraph.K2Node_FunctionEntry'"/Game/StarterContent/Blueprints/Blueprint_WallSconce.Blueprint_WallSconce:UserConstructionScript.K2Node_FunctionEntry_11"'
                     bEnforceConstCorrectness=False
@@ -156,6 +189,7 @@
                     CustomProperties Pin (PinId=34A0698A588AF5B070CFC2C911DE0629,PinName="OutputPin",Direction="EGPD_Output",PinType.PinCategory="object",PinType.PinSubCategory="",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'"/Script/Engine.SpotLightComponent"',PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(),PinType.bIsReference=False,PinType.bIsConst=False,PinType.bIsWeakPointer=False,PinType.bIsUObjectWrapper=False,PinType.bSerializeAsSinglePrecisionFloat=False,PinType.ContainerType=None,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,LinkedTo=(K2Node_Knot_5 C4FAC08BE98C14507F0D997D33B06FE8,),)
                 End Object                        
             </template>
+            <input type="text" class="floating-input" placeholder="Enter text..." />
         </ueb-blueprint>
     </code>
 </body>
