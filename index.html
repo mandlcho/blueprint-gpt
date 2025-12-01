@@ -144,7 +144,7 @@
     </div>
 
     <code>
-        <ueb-blueprint oncontextmenu="return true;">
+        <ueb-blueprint>
             <template>
                 Begin Object Class="/Script/BlueprintGraph.K2Node_FunctionEntry" Name="K2Node_FunctionEntry_11" ExportPath=/Script/BlueprintGraph.K2Node_FunctionEntry'"/Game/StarterContent/Blueprints/Blueprint_WallSconce.Blueprint_WallSconce:UserConstructionScript.K2Node_FunctionEntry_11"'
                     bEnforceConstCorrectness=False
@@ -500,14 +500,17 @@ End Object`;
             const canvas = document.querySelector('ueb-blueprint');
             const input = document.getElementById('nodeSearchInput');
 
-            // Right-click to open menu
+            // Right-click to open menu (capture phase to intercept before canvas handlers)
             canvas.addEventListener('contextmenu', (e) => {
                 if (!nodesDatabase) return;
 
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation(); // Stop other handlers on the same element
+
+                console.log('Context menu triggered at:', e.clientX, e.clientY);
                 showContextMenu(e.clientX, e.clientY);
-            });
+            }, true); // Use capture phase
 
             // Click outside to close
             document.addEventListener('click', (e) => {
