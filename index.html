@@ -44,6 +44,89 @@
             position: relative;
             display: block;
         }
+
+        /* Node Search Context Menu */
+        .node-search-menu {
+            position: fixed;
+            background: rgba(30, 30, 30, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            min-width: 350px;
+            max-width: 500px;
+            max-height: 500px;
+            display: none;
+            flex-direction: column;
+            z-index: 10000;
+            font-family: 'Roboto', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+
+        .node-search-menu.visible {
+            display: flex;
+        }
+
+        .node-search-input {
+            padding: 12px 16px;
+            background: rgba(50, 50, 50, 0.9);
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .node-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .node-search-results {
+            overflow-y: auto;
+            max-height: 440px;
+            padding: 4px;
+        }
+
+        .node-search-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 2px 0;
+            transition: background 0.15s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .node-search-item:hover,
+        .node-search-item.selected {
+            background: rgba(84, 122, 156, 0.3);
+        }
+
+        .node-search-item-name {
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .node-search-item-type {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+        }
+
+        .node-search-item-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+
+        .node-search-no-results {
+            padding: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
     </style>
 </head>
 
@@ -51,6 +134,13 @@
     <script type="module">
         import { Blueprint } from "./dist/ueblueprint.js"
     </script>
+
+    <!-- Node Search Context Menu -->
+    <div class="node-search-menu" id="nodeSearchMenu">
+        <input type="text" class="node-search-input" id="nodeSearchInput" placeholder="Search for a node..." />
+        <div class="node-search-results" id="nodeSearchResults"></div>
+    </div>
+
     <code>
         <ueb-blueprint oncontextmenu="return true;">
             <template>
@@ -192,6 +282,189 @@
             <input type="text" class="floating-input" placeholder="Enter text..." />
         </ueb-blueprint>
     </code>
+
+    <script>
+        // Node Search System
+        let nodesDatabase = null;
+        let selectedIndex = 0;
+        let filteredNodes = [];
+        let contextMenuPosition = { x: 0, y: 0 };
+
+        // Load nodes database
+        async function loadNodesDatabase() {
+            try {
+                const response = await fetch('ue_blueprint_nodes.json');
+                const data = await response.json();
+                nodesDatabase = data.nodes;
+                console.log(`✓ Loaded ${nodesDatabase.length} blueprint nodes`);
+            } catch (error) {
+                console.error('Failed to load nodes database:', error);
+            }
+        }
+
+        // Show context menu
+        function showContextMenu(x, y) {
+            const menu = document.getElementById('nodeSearchMenu');
+            const input = document.getElementById('nodeSearchInput');
+
+            // Position menu
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('visible');
+
+            // Store position for node spawning
+            contextMenuPosition = { x, y };
+
+            // Clear and focus input
+            input.value = '';
+            input.focus();
+
+            // Show all nodes initially
+            filterNodes('');
+        }
+
+        // Hide context menu
+        function hideContextMenu() {
+            const menu = document.getElementById('nodeSearchMenu');
+            menu.classList.remove('visible');
+            selectedIndex = 0;
+        }
+
+        // Filter nodes based on search query
+        function filterNodes(query) {
+            if (!nodesDatabase) return;
+
+            const results = document.getElementById('nodeSearchResults');
+            results.innerHTML = '';
+
+            // Filter nodes
+            if (query.trim() === '') {
+                filteredNodes = nodesDatabase.slice(0, 50); // Show first 50 nodes
+            } else {
+                const searchLower = query.toLowerCase();
+                filteredNodes = nodesDatabase.filter(node => {
+                    const nameMatch = node.displayName?.toLowerCase().includes(searchLower);
+                    const classMatch = node.className?.toLowerCase().includes(searchLower);
+                    const typeMatch = node.nodeType?.toLowerCase().includes(searchLower);
+                    const descMatch = node.description?.toLowerCase().includes(searchLower);
+                    const keywordMatch = node.keywords?.toLowerCase().includes(searchLower);
+
+                    return nameMatch || classMatch || typeMatch || descMatch || keywordMatch;
+                }).slice(0, 50); // Limit results
+            }
+
+            // Reset selected index
+            selectedIndex = 0;
+
+            // Display results
+            if (filteredNodes.length === 0) {
+                results.innerHTML = '<div class="node-search-no-results">No nodes found</div>';
+                return;
+            }
+
+            filteredNodes.forEach((node, index) => {
+                const item = document.createElement('div');
+                item.className = 'node-search-item' + (index === 0 ? ' selected' : '');
+                item.dataset.index = index;
+
+                const truncateDesc = (text, maxLength = 80) => {
+                    if (!text) return '';
+                    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+                };
+
+                item.innerHTML = `
+                    <div class="node-search-item-name">${node.displayName || node.className}</div>
+                    <div class="node-search-item-type">${node.nodeType}${node.isPure ? ' (Pure)' : ''}</div>
+                    ${node.description ? `<div class="node-search-item-desc">${truncateDesc(node.description)}</div>` : ''}
+                `;
+
+                item.addEventListener('click', () => spawnNode(node));
+                results.appendChild(item);
+            });
+        }
+
+        // Update selected item
+        function updateSelection(newIndex) {
+            const items = document.querySelectorAll('.node-search-item');
+            if (items.length === 0) return;
+
+            // Clamp index
+            selectedIndex = Math.max(0, Math.min(newIndex, items.length - 1));
+
+            // Update classes
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+
+            // Scroll into view
+            items[selectedIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        // Spawn node on canvas
+        function spawnNode(node) {
+            console.log('Spawning node:', node.className, 'at position:', contextMenuPosition);
+
+            // TODO: Implement actual node spawning on blueprint canvas
+            // This would require integration with the ueblueprint library
+            alert(`Spawning: ${node.displayName || node.className}\nType: ${node.nodeType}\n\nNode spawning will be implemented in the next step!`);
+
+            hideContextMenu();
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNodesDatabase();
+
+            const canvas = document.querySelector('ueb-blueprint');
+            const input = document.getElementById('nodeSearchInput');
+
+            // Right-click to open menu
+            canvas.addEventListener('contextmenu', (e) => {
+                if (!nodesDatabase) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                showContextMenu(e.clientX, e.clientY);
+            });
+
+            // Click outside to close
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('nodeSearchMenu');
+                if (!menu.contains(e.target)) {
+                    hideContextMenu();
+                }
+            });
+
+            // Search input
+            input.addEventListener('input', (e) => {
+                filterNodes(e.target.value);
+            });
+
+            // Keyboard navigation
+            input.addEventListener('keydown', (e) => {
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        updateSelection(selectedIndex + 1);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        updateSelection(selectedIndex - 1);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (filteredNodes[selectedIndex]) {
+                            spawnNode(filteredNodes[selectedIndex]);
+                        }
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        hideContextMenu();
+                        break;
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
