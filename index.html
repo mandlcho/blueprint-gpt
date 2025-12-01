@@ -500,11 +500,46 @@ End Object`;
                 const nodeElement = window.NodeElement.fromSerializedObject(serialization);
                 console.log('NodeElement created:', nodeElement);
 
+                // Set the blueprint reference on the node
+                nodeElement.blueprint = canvas;
+                console.log('Blueprint reference set on node');
+
                 // Add node to blueprint
                 console.log('Adding to blueprint...');
                 if (typeof canvas.addGraphElement === 'function') {
                     canvas.addGraphElement(nodeElement);
                     console.log('✓ Node added via addGraphElement');
+
+                    // Force update/render
+                    if (typeof canvas.requestUpdate === 'function') {
+                        canvas.requestUpdate();
+                        console.log('Requested canvas update');
+                    }
+
+                    // Check if node is in DOM and visible
+                    setTimeout(() => {
+                        const nodesInDOM = canvas.querySelectorAll('ueb-node');
+                        console.log('Total nodes in DOM:', nodesInDOM.length);
+                        const isInDOM = canvas.contains(nodeElement);
+                        console.log('New node is in DOM:', isInDOM);
+
+                        if (isInDOM) {
+                            const rect = nodeElement.getBoundingClientRect();
+                            const canvasRect = canvas.getBoundingClientRect();
+                            console.log('Node rect:', rect);
+                            console.log('Canvas rect:', canvasRect);
+                            console.log('Node visible:', rect.width > 0 && rect.height > 0);
+
+                            // Check if node is in viewport
+                            const inViewport = rect.top >= canvasRect.top &&
+                                             rect.left >= canvasRect.left &&
+                                             rect.bottom <= canvasRect.bottom &&
+                                             rect.right <= canvasRect.right;
+                            console.log('Node in viewport:', inViewport);
+                        } else {
+                            console.error('Node was not added to DOM!');
+                        }
+                    }, 200);
                 } else {
                     console.error('addGraphElement is not a function!', typeof canvas.addGraphElement);
                     console.log('Available canvas methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(canvas)));
