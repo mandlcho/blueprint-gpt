@@ -132,7 +132,9 @@
 
 <body>
     <script type="module">
-        import { Blueprint } from "./dist/ueblueprint.js"
+        import { Blueprint, NodeElement } from "./dist/ueblueprint.js"
+        // Make NodeElement globally accessible for the main script
+        window.NodeElement = NodeElement;
     </script>
 
     <!-- Node Search Context Menu -->
@@ -400,13 +402,93 @@
             items[selectedIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
 
+        // Generate a random GUID (32 hex characters)
+        function generateGUID() {
+            return 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, () =>
+                Math.floor(Math.random() * 16).toString(16).toUpperCase()
+            );
+        }
+
+        // Generate a unique node name
+        let nodeCounter = 0;
+        function generateNodeName(className) {
+            return `${className}_${Date.now()}_${nodeCounter++}`;
+        }
+
+        // Create a serialized node string based on node type
+        function createNodeSerialization(node, posX, posY) {
+            const nodeName = generateNodeName(node.className);
+            const nodeGuid = generateGUID();
+            const classPath = `/Script/BlueprintGraph.${node.className}`;
+
+            // Base serialization - minimal structure that the library can parse
+            let serialization = `Begin Object Class="${classPath}" Name="${nodeName}"
+    NodePosX=${Math.round(posX)}
+    NodePosY=${Math.round(posY)}
+    NodeGuid=${nodeGuid}`;
+
+            // Add specific properties based on node type
+            if (node.className.includes('CallFunction')) {
+                // For function call nodes, we need a function reference
+                // Use a generic print function as default
+                serialization += `
+    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="PrintString")`;
+            } else if (node.className.includes('VariableGet') || node.className.includes('VariableSet')) {
+                // For variable nodes, add a generic variable reference
+                serialization += `
+    VariableReference=(MemberName="NewVar",bSelfContext=True)`;
+            }
+
+            serialization += `
+End Object`;
+
+            return serialization;
+        }
+
         // Spawn node on canvas
         function spawnNode(node) {
-            console.log('Spawning node:', node.className, 'at position:', contextMenuPosition);
+            try {
+                console.log('Spawning node:', node.className, 'at position:', contextMenuPosition);
 
-            // TODO: Implement actual node spawning on blueprint canvas
-            // This would require integration with the ueblueprint library
-            alert(`Spawning: ${node.displayName || node.className}\nType: ${node.nodeType}\n\nNode spawning will be implemented in the next step!`);
+                const canvas = document.querySelector('ueb-blueprint');
+                if (!canvas) {
+                    console.error('Blueprint canvas not found');
+                    return;
+                }
+
+                // Convert screen coordinates to blueprint canvas coordinates
+                const rect = canvas.getBoundingClientRect();
+                const scrollX = canvas.scrollX || 0;
+                const scrollY = canvas.scrollY || 0;
+                const zoom = canvas.zoom || 0;
+                const zoomFactor = Math.pow(2, zoom);
+
+                // Calculate position relative to canvas
+                const canvasX = (contextMenuPosition.x - rect.left) / zoomFactor + scrollX;
+                const canvasY = (contextMenuPosition.y - rect.top) / zoomFactor + scrollY;
+
+                // Create serialized node
+                const serialization = createNodeSerialization(node, canvasX, canvasY);
+                console.log('Node serialization:', serialization);
+
+                // Create node element from serialization
+                if (!window.NodeElement) {
+                    console.error('NodeElement not available yet - waiting for module to load');
+                    setTimeout(() => spawnNode(node), 100);
+                    return;
+                }
+
+                const nodeElement = window.NodeElement.fromSerializedObject(serialization);
+
+                // Add node to blueprint
+                canvas.addGraphElement(nodeElement);
+
+                console.log('✓ Node spawned successfully:', node.displayName || node.className);
+
+            } catch (error) {
+                console.error('Error spawning node:', error);
+                alert(`Error spawning node: ${error.message}\n\nThis node type may require additional configuration.`);
+            }
 
             hideContextMenu();
         }
