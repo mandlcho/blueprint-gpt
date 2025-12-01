@@ -347,9 +347,11 @@
             const results = document.getElementById('nodeSearchResults');
             results.innerHTML = '';
 
-            // Only show operation nodes (Function and Flow Control)
+            // Only show getter/setter nodes (Variable type)
             const operationNodes = nodesDatabase.filter(node =>
-                node.nodeType === 'Function' || node.nodeType === 'Flow Control'
+                node.nodeType === 'Variable' ||
+                node.className?.includes('VariableGet') ||
+                node.className?.includes('VariableSet')
             );
 
             // Filter nodes
