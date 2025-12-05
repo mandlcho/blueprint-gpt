@@ -589,12 +589,18 @@ End Object`;
                 const zoom = canvas.zoom || 0;
                 const zoomFactor = Math.pow(2, zoom);
 
+                console.log('Position calculation:');
+                console.log('  contextMenuPosition:', contextMenuPosition);
+                console.log('  rect.left:', rect.left, 'rect.top:', rect.top);
+                console.log('  scrollX:', scrollX, 'scrollY:', scrollY);
+                console.log('  zoom:', zoom, 'zoomFactor:', zoomFactor);
+
                 // Calculate position relative to canvas
                 // Use the stored mouse position (where cursor was when Tab was pressed)
                 const canvasX = (contextMenuPosition.x - rect.left) / zoomFactor + scrollX;
                 const canvasY = (contextMenuPosition.y - rect.top) / zoomFactor + scrollY;
 
-                console.log('Canvas position:', canvasX, canvasY);
+                console.log('Final canvas position (where node will spawn):', canvasX, canvasY);
 
                 // Create serialized node at cursor position
                 const serialization = createNodeSerialization(node, canvasX, canvasY);
