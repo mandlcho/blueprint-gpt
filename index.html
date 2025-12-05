@@ -348,12 +348,10 @@
             const results = document.getElementById('nodeSearchResults');
             results.innerHTML = '';
 
-            // Only show spawnable node types: Variable and Flow Control
-            // Exclude Function nodes (most don't have proper function signatures)
-            // Exclude Utility, Struct, Event, Actor, Timeline, Cast, Delegate nodes
-            const spawnableTypes = ['Variable', 'Flow Control'];
+            // Only show nodes that can actually be spawned
+            // Filter by canSpawn property if available, otherwise show all
             const candidateNodes = nodesDatabase.filter(node =>
-                spawnableTypes.includes(node.nodeType)
+                node.canSpawn === true
             );
 
             // Filter nodes by search query
