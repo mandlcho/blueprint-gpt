@@ -472,16 +472,22 @@
                     // Add input pins
                     if (node.inputs) {
                         node.inputs.forEach(pin => {
-                            if (pin.name !== 'self' || !node.isPure) {
-                                allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinType.PinCategory="${pin.type}",Direction="EGPD_Input",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=${pin.name === 'self' ? 'True' : 'False'},bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
-                            }
+                            // Skip exec pins as they're already added above for non-pure functions
+                            if (pin.type === 'exec') return;
+
+                            // For pure functions, show 'self' pin; for non-pure, hide it but include it
+                            const hidePin = pin.name === 'self' && !node.isPure;
+                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinFriendlyName=${pin.name === 'self' ? 'NSLOCTEXT("K2Node", "Target", "Target")' : '""'},PinToolTip="${pin.description || ''}",PinType.PinCategory="${pin.type}",PinType.PinSubCategory="",Direction="EGPD_Input",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=${hidePin ? 'True' : 'False'},bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
                         });
                     }
 
                     // Add output pins
                     if (node.outputs) {
                         node.outputs.forEach(pin => {
-                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",Direction="EGPD_Output",PinType.PinCategory="${pin.type}",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                            // Skip exec pins as they're already added above for non-pure functions
+                            if (pin.type === 'exec') return;
+
+                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinToolTip="${pin.description || ''}",Direction="EGPD_Output",PinType.PinCategory="${pin.type}",PinType.PinSubCategory="",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
                         });
                     }
 
