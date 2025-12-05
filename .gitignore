@@ -1,0 +1,19 @@
+# Cache and temporary files
+cache/
+*.log
+
+# Large data files (can be regenerated)
+blueprint_api_raw.json
+blueprint_api_content.html
+sitemap.xml
+ue_blueprint_nodes_scraped.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
