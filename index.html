@@ -452,21 +452,42 @@
 
             // Add specific properties based on node type
             if (node.className.includes('CallFunction')) {
-                // For function call nodes, use the function signature from the node if available
-                if (node.functionSignature) {
-                    // Parse the function signature to extract MemberParent and MemberName
-                    // Format: "ReturnType FunctionName(Params)"
-                    const funcName = node.functionSignature.match(/\s+(\w+)\(/)?.[1] || node.displayName;
-                    serialization += `
-    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="${funcName}")`;
-                } else if (node.displayName) {
-                    // Use display name if available
-                    serialization += `
-    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="${node.displayName.replace(/\s+/g, '')}")`;
-                } else {
-                    // Fallback to generic print function
-                    serialization += `
-    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="PrintString")`;
+                // For function call nodes, use functionName and targetClass from merged database
+                const funcName = node.functionName || node.displayName?.replace(/\s+/g, '') || 'PrintString';
+                const targetClass = node.targetClass || '/Script/Engine.KismetSystemLibrary';
+
+                serialization += `
+    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"${targetClass}"',MemberName="${funcName}")`;
+
+                // Add pins if available
+                if (node.inputs || node.outputs) {
+                    const allPins = [];
+
+                    // Add execution pins for non-pure functions
+                    if (!node.isPure) {
+                        allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="execute",PinType.PinCategory="exec",PinType.PinSubCategory="",Direction="EGPD_Input",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                        allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="then",Direction="EGPD_Output",PinType.PinCategory="exec",PinType.PinSubCategory="",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                    }
+
+                    // Add input pins
+                    if (node.inputs) {
+                        node.inputs.forEach(pin => {
+                            if (pin.name !== 'self' || !node.isPure) {
+                                allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinType.PinCategory="${pin.type}",Direction="EGPD_Input",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=${pin.name === 'self' ? 'True' : 'False'},bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                            }
+                        });
+                    }
+
+                    // Add output pins
+                    if (node.outputs) {
+                        node.outputs.forEach(pin => {
+                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",Direction="EGPD_Output",PinType.PinCategory="${pin.type}",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                        });
+                    }
+
+                    if (allPins.length > 0) {
+                        serialization += '\n    ' + allPins.join('\n    ');
+                    }
                 }
             } else if (node.className.includes('VariableGet') || node.className.includes('VariableSet')) {
                 // For variable nodes, use display name if available
