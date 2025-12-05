@@ -438,6 +438,39 @@
             return `${className}_${Date.now()}_${nodeCounter++}`;
         }
 
+        // Map generic types to specific UE struct types based on pin name and description
+        function getPinTypeDetails(pin) {
+            const pinName = pin.name.toLowerCase();
+            const description = (pin.description || '').toLowerCase();
+
+            // Default values
+            let category = pin.type;
+            let subCategory = '';
+            let subCategoryObject = 'None';
+
+            if (pin.type === 'struct') {
+                // Determine specific struct type based on pin name and description
+                if (pinName.includes('location') || description.includes('location')) {
+                    subCategoryObject = '/Script/CoreUObject.ScriptStruct\'"/Script/CoreUObject.Vector"\'';
+                } else if (pinName.includes('rotation') || description.includes('rotation')) {
+                    subCategoryObject = '/Script/CoreUObject.ScriptStruct\'"/Script/Engine.Rotator"\'';
+                } else if (pinName.includes('scale') || description.includes('scale')) {
+                    subCategoryObject = '/Script/CoreUObject.ScriptStruct\'"/Script/CoreUObject.Vector"\'';
+                } else if (pinName.includes('transform') || description.includes('transform')) {
+                    subCategoryObject = '/Script/CoreUObject.ScriptStruct\'"/Script/Engine.Transform"\'';
+                } else if (pinName.includes('vector') || description.includes('vector')) {
+                    subCategoryObject = '/Script/CoreUObject.ScriptStruct\'"/Script/CoreUObject.Vector"\'';
+                } else {
+                    // Generic struct
+                    subCategoryObject = '/Script/CoreUObject.ScriptStruct\'"/Script/CoreUObject.Object"\'';
+                }
+            } else if (pin.type === 'object') {
+                subCategoryObject = '/Script/CoreUObject.Class\'"/Script/Engine.Actor"\'';
+            }
+
+            return { category, subCategory, subCategoryObject };
+        }
+
         // Create a serialized node string based on node type
         function createNodeSerialization(node, posX, posY) {
             const nodeName = generateNodeName(node.className);
@@ -475,9 +508,12 @@
                             // Skip exec pins as they're already added above for non-pure functions
                             if (pin.type === 'exec') return;
 
+                            // Get proper type details
+                            const typeDetails = getPinTypeDetails(pin);
+
                             // For pure functions, show 'self' pin; for non-pure, hide it but include it
                             const hidePin = pin.name === 'self' && !node.isPure;
-                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinFriendlyName=${pin.name === 'self' ? 'NSLOCTEXT("K2Node", "Target", "Target")' : '""'},PinToolTip="${pin.description || ''}",PinType.PinCategory="${pin.type}",PinType.PinSubCategory="",Direction="EGPD_Input",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=${hidePin ? 'True' : 'False'},bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinFriendlyName=${pin.name === 'self' ? 'NSLOCTEXT("K2Node", "Target", "Target")' : '""'},PinToolTip="${pin.description || ''}",PinType.PinCategory="${typeDetails.category}",PinType.PinSubCategory="${typeDetails.subCategory}",PinType.PinSubCategoryObject=${typeDetails.subCategoryObject},PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(),PinType.ContainerType=None,PinType.bIsReference=False,PinType.bIsConst=False,PinType.bIsWeakPointer=False,PinType.bIsUObjectWrapper=False,PinType.bSerializeAsSinglePrecisionFloat=False,Direction="EGPD_Input",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=${hidePin ? 'True' : 'False'},bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
                         });
                     }
 
@@ -487,7 +523,10 @@
                             // Skip exec pins as they're already added above for non-pure functions
                             if (pin.type === 'exec') return;
 
-                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinToolTip="${pin.description || ''}",Direction="EGPD_Output",PinType.PinCategory="${pin.type}",PinType.PinSubCategory="",LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
+                            // Get proper type details
+                            const typeDetails = getPinTypeDetails(pin);
+
+                            allPins.push(`CustomProperties Pin (PinId=${generateGUID()},PinName="${pin.name}",PinToolTip="${pin.description || ''}",Direction="EGPD_Output",PinType.PinCategory="${typeDetails.category}",PinType.PinSubCategory="${typeDetails.subCategory}",PinType.PinSubCategoryObject=${typeDetails.subCategoryObject},PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(),PinType.ContainerType=None,PinType.bIsReference=False,PinType.bIsConst=False,PinType.bIsWeakPointer=False,PinType.bIsUObjectWrapper=False,PinType.bSerializeAsSinglePrecisionFloat=False,LinkedTo=(),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)`);
                         });
                     }
 
