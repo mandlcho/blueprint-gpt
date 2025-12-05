@@ -1,10 +1,9 @@
 {
-  "version": "4.1",
-  "source": "Merged: Old spawnable nodes + Phase 1.5 functions + Transformation essentials",
-  "mergedAt": "2025-12-05",
-  "totalNodes": 2111,
-  "spawnableNodes": 12,
-  "searchOnlyNodes": 2099,
+  "version": "1.5.1",
+  "source": "Extracted from cache + Essential Transformation functions",
+  "extractedAt": 1764924483.6337376,
+  "totalFunctions": 2111,
+  "categoriesProcessed": 111,
   "nodes": [
     {
       "displayName": "AI MoveTo",
@@ -12162,26 +12161,8 @@
       "description": "Get the forward (X) vector of this Actor",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorForwardVector",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "GetActorForwardVector",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Forward vector"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Get Actor Location",
@@ -12189,26 +12170,8 @@
       "description": "Returns location of the RootComponent of this Actor",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorLocation",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "K2_GetActorLocation",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Actor's world location"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Get Actor Right Vector",
@@ -12216,26 +12179,8 @@
       "description": "Get the right (Y) vector of this Actor",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorRightVector",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "GetActorRightVector",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Right vector"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Get Actor Rotation",
@@ -12243,26 +12188,8 @@
       "description": "Returns rotation of the RootComponent of this Actor",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorRotation",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "K2_GetActorRotation",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Actor's world rotation"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Get Actor Scale3D",
@@ -12270,26 +12197,8 @@
       "description": "Returns scale 3D of the RootComponent",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorScale3D",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "GetActorScale3D",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Actor's scale"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Get Actor Transform",
@@ -12297,26 +12206,8 @@
       "description": "Returns the transform of the RootComponent",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorTransform",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "GetTransform",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Actor's world transform"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Get Actor Up Vector",
@@ -12324,26 +12215,8 @@
       "description": "Get the up (Z) vector of this Actor",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/GetActorUpVector",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "GetActorUpVector",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": true,
-      "inputs": [
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ReturnValue",
-          "type": "struct",
-          "description": "Up vector"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Set Actor Location",
@@ -12351,51 +12224,8 @@
       "description": "Set the Actor's location instantly to the specified location",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/SetActorLocation",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "K2_SetActorLocation",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": false,
-      "inputs": [
-        {
-          "name": "execute",
-          "type": "exec",
-          "description": "Execution pin"
-        },
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        },
-        {
-          "name": "NewLocation",
-          "type": "struct",
-          "description": "New location to set"
-        },
-        {
-          "name": "bSweep",
-          "type": "bool",
-          "description": "Whether to sweep to the destination"
-        },
-        {
-          "name": "bTeleport",
-          "type": "bool",
-          "description": "Whether to teleport"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "then",
-          "type": "exec",
-          "description": "Execution output"
-        },
-        {
-          "name": "ReturnValue",
-          "type": "bool",
-          "description": "Whether location was successfully set"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Set Actor Location And Rotation",
@@ -12403,56 +12233,8 @@
       "description": "Set the Actor's location and rotation instantly",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/SetActorLocationAndRotation",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "K2_SetActorLocationAndRotation",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": false,
-      "inputs": [
-        {
-          "name": "execute",
-          "type": "exec",
-          "description": "Execution pin"
-        },
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        },
-        {
-          "name": "NewLocation",
-          "type": "struct",
-          "description": "New location"
-        },
-        {
-          "name": "NewRotation",
-          "type": "struct",
-          "description": "New rotation"
-        },
-        {
-          "name": "bSweep",
-          "type": "bool",
-          "description": "Whether to sweep"
-        },
-        {
-          "name": "bTeleport",
-          "type": "bool",
-          "description": "Whether to teleport"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "then",
-          "type": "exec",
-          "description": "Execution output"
-        },
-        {
-          "name": "ReturnValue",
-          "type": "bool",
-          "description": "Success"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Set Actor Relative Location",
@@ -12487,46 +12269,8 @@
       "description": "Set the Actor's rotation instantly to the specified rotation",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/SetActorRotation",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "K2_SetActorRotation",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": false,
-      "inputs": [
-        {
-          "name": "execute",
-          "type": "exec",
-          "description": "Execution pin"
-        },
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        },
-        {
-          "name": "NewRotation",
-          "type": "struct",
-          "description": "New rotation to set"
-        },
-        {
-          "name": "bTeleportPhysics",
-          "type": "bool",
-          "description": "Whether to teleport physics"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "then",
-          "type": "exec",
-          "description": "Execution output"
-        },
-        {
-          "name": "ReturnValue",
-          "type": "bool",
-          "description": "Whether rotation was successfully set"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Set Actor Scale3D",
@@ -12534,36 +12278,8 @@
       "description": "Set the Actor's scale",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/SetActorScale3D",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "SetActorScale3D",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": false,
-      "inputs": [
-        {
-          "name": "execute",
-          "type": "exec",
-          "description": "Execution pin"
-        },
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        },
-        {
-          "name": "NewScale3D",
-          "type": "struct",
-          "description": "New scale to set"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "then",
-          "type": "exec",
-          "description": "Execution output"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "Set Actor Transform",
@@ -12571,51 +12287,8 @@
       "description": "Set the Actor's transform instantly",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Transformation/SetActorTransform",
       "type": "function",
-      "hasDetailedInfo": true,
-      "canSpawn": true,
-      "className": "K2Node_CallFunction",
-      "functionName": "SetActorTransform",
-      "targetClass": "/Script/Engine.Actor",
-      "isPure": false,
-      "inputs": [
-        {
-          "name": "execute",
-          "type": "exec",
-          "description": "Execution pin"
-        },
-        {
-          "name": "self",
-          "type": "object",
-          "description": "Target Actor"
-        },
-        {
-          "name": "NewTransform",
-          "type": "struct",
-          "description": "New transform to set"
-        },
-        {
-          "name": "bSweep",
-          "type": "bool",
-          "description": "Whether to sweep"
-        },
-        {
-          "name": "bTeleport",
-          "type": "bool",
-          "description": "Whether to teleport"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "then",
-          "type": "exec",
-          "description": "Execution output"
-        },
-        {
-          "name": "ReturnValue",
-          "type": "bool",
-          "description": "Whether transform was successfully set"
-        }
-      ]
+      "hasDetailedInfo": false,
+      "canSpawn": false
     },
     {
       "displayName": "AI",
