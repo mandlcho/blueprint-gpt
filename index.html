@@ -590,11 +590,13 @@ End Object`;
                 const zoomFactor = Math.pow(2, zoom);
 
                 // Calculate position relative to canvas
+                // Use the stored mouse position (where cursor was when Tab was pressed)
                 const canvasX = (contextMenuPosition.x - rect.left) / zoomFactor + scrollX;
                 const canvasY = (contextMenuPosition.y - rect.top) / zoomFactor + scrollY;
+
                 console.log('Canvas position:', canvasX, canvasY);
 
-                // Create serialized node
+                // Create serialized node at cursor position
                 const serialization = createNodeSerialization(node, canvasX, canvasY);
                 console.log('Serialization:', serialization);
 
