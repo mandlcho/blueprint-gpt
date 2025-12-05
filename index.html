@@ -476,9 +476,10 @@
             const nodeName = generateNodeName(node.className);
             const nodeGuid = generateGUID();
             const classPath = `/Script/BlueprintGraph.${node.className}`;
+            const exportPath = `/Script/BlueprintGraph.${node.className}'"/Game/Generated/${nodeName}"'`;
 
-            // Base serialization - minimal structure that the library can parse
-            let serialization = `Begin Object Class="${classPath}" Name="${nodeName}"
+            // Base serialization - copy exact UE format
+            let serialization = `Begin Object Class="${classPath}" Name="${nodeName}" ExportPath=${exportPath}
     NodePosX=${Math.round(posX)}
     NodePosY=${Math.round(posY)}
     NodeGuid=${nodeGuid}`;
