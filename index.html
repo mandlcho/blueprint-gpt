@@ -303,10 +303,11 @@
         // Load nodes database
         async function loadNodesDatabase() {
             try {
-                const response = await fetch('ue_blueprint_nodes.json');
+                const response = await fetch('ue_blueprint_nodes_merged.json');
                 const data = await response.json();
                 nodesDatabase = data.nodes;
-                console.log(`✓ Loaded ${nodesDatabase.length} blueprint nodes`);
+                const spawnable = data.spawnableNodes || nodesDatabase.filter(n => n.canSpawn).length;
+                console.log(`✓ Loaded ${nodesDatabase.length} blueprint nodes (${spawnable} spawnable, ${nodesDatabase.length - spawnable} search-only)`);
             } catch (error) {
                 console.error('Failed to load nodes database:', error);
             }
@@ -347,26 +348,24 @@
             const results = document.getElementById('nodeSearchResults');
             results.innerHTML = '';
 
-            // Only show getter/setter nodes (Variable type)
-            const operationNodes = nodesDatabase.filter(node =>
-                node.nodeType === 'Variable' ||
-                node.className?.includes('VariableGet') ||
-                node.className?.includes('VariableSet')
-            );
+            // Show all nodes (removed Variable-only filter)
+            let candidateNodes = nodesDatabase;
 
-            // Filter nodes
+            // Filter nodes by search query
             if (query.trim() === '') {
-                filteredNodes = operationNodes.slice(0, 100);
+                // Show first 100 when no query
+                filteredNodes = candidateNodes.slice(0, 100);
             } else {
                 const searchLower = query.toLowerCase();
-                filteredNodes = operationNodes.filter(node => {
+                filteredNodes = candidateNodes.filter(node => {
                     const nameMatch = node.displayName?.toLowerCase().includes(searchLower);
                     const classMatch = node.className?.toLowerCase().includes(searchLower);
                     const typeMatch = node.nodeType?.toLowerCase().includes(searchLower);
+                    const categoryMatch = node.category?.toLowerCase().includes(searchLower);
                     const descMatch = node.description?.toLowerCase().includes(searchLower);
                     const keywordMatch = node.keywords?.toLowerCase().includes(searchLower);
 
-                    return nameMatch || classMatch || typeMatch || descMatch || keywordMatch;
+                    return nameMatch || classMatch || typeMatch || categoryMatch || descMatch || keywordMatch;
                 }).slice(0, 100);
             }
 
@@ -389,9 +388,14 @@
                     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
                 };
 
+                // Show spawnable status
+                const spawnStatus = node.canSpawn ? '' : ' <span style="color: #888;">(search only)</span>';
+                const nodeTypeText = node.nodeType || node.category || '';
+                const pureText = node.isPure ? ' (Pure)' : '';
+
                 item.innerHTML = `
-                    <div class="node-search-item-name">${node.displayName || node.className}</div>
-                    <div class="node-search-item-type">${node.nodeType}${node.isPure ? ' (Pure)' : ''}</div>
+                    <div class="node-search-item-name">${node.displayName || node.className}${spawnStatus}</div>
+                    <div class="node-search-item-type">${nodeTypeText}${pureText}</div>
                     ${node.description ? `<div class="node-search-item-desc">${truncateDesc(node.description)}</div>` : ''}
                 `;
 
@@ -462,6 +466,13 @@ End Object`;
 
         // Spawn node on canvas
         function spawnNode(node) {
+            // Check if node is spawnable
+            if (!node.canSpawn || !node.className) {
+                alert(`"${node.displayName}" is search-only.\n\nThis node doesn't have spawn data yet. It will be available after Phase 2 scraping completes.`);
+                hideContextMenu();
+                return;
+            }
+
             try {
                 console.log('=== Spawning node ===');
                 console.log('Node:', node.className, node.displayName);
