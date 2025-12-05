@@ -369,8 +369,9 @@
                     const categoryMatch = node.category?.toLowerCase().includes(searchLower);
                     const descMatch = node.description?.toLowerCase().includes(searchLower);
                     const keywordMatch = node.keywords?.toLowerCase().includes(searchLower);
+                    const metadataMatch = node.uclassMetadata?.toLowerCase().includes(searchLower);
 
-                    return nameMatch || classMatch || typeMatch || categoryMatch || descMatch || keywordMatch;
+                    return nameMatch || classMatch || typeMatch || categoryMatch || descMatch || keywordMatch || metadataMatch;
                 }).slice(0, 100);
             }
 
