@@ -348,8 +348,13 @@
             const results = document.getElementById('nodeSearchResults');
             results.innerHTML = '';
 
-            // Show all nodes (removed Variable-only filter)
-            let candidateNodes = nodesDatabase;
+            // Only show spawnable node types: Variable and Flow Control
+            // Exclude Function nodes (most don't have proper function signatures)
+            // Exclude Utility, Struct, Event, Actor, Timeline, Cast, Delegate nodes
+            const spawnableTypes = ['Variable', 'Flow Control'];
+            const candidateNodes = nodesDatabase.filter(node =>
+                spawnableTypes.includes(node.nodeType)
+            );
 
             // Filter nodes by search query
             if (query.trim() === '') {
@@ -448,14 +453,27 @@
 
             // Add specific properties based on node type
             if (node.className.includes('CallFunction')) {
-                // For function call nodes, we need a function reference
-                // Use a generic print function as default
-                serialization += `
+                // For function call nodes, use the function signature from the node if available
+                if (node.functionSignature) {
+                    // Parse the function signature to extract MemberParent and MemberName
+                    // Format: "ReturnType FunctionName(Params)"
+                    const funcName = node.functionSignature.match(/\s+(\w+)\(/)?.[1] || node.displayName;
+                    serialization += `
+    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="${funcName}")`;
+                } else if (node.displayName) {
+                    // Use display name if available
+                    serialization += `
+    FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="${node.displayName.replace(/\s+/g, '')}")`;
+                } else {
+                    // Fallback to generic print function
+                    serialization += `
     FunctionReference=(MemberParent=/Script/CoreUObject.Class'"/Script/Engine.KismetSystemLibrary"',MemberName="PrintString")`;
+                }
             } else if (node.className.includes('VariableGet') || node.className.includes('VariableSet')) {
-                // For variable nodes, add a generic variable reference
+                // For variable nodes, use display name if available
+                const varName = node.displayName ? node.displayName.replace(/\s+/g, '') : 'NewVar';
                 serialization += `
-    VariableReference=(MemberName="NewVar",bSelfContext=True)`;
+    VariableReference=(MemberName="${varName}",bSelfContext=True)`;
             }
 
             serialization += `
