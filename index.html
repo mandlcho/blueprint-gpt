@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <title>UE Blueprint</title>
     <link rel="stylesheet" href="dist/css/ueb-style.min.css">
+    <link rel="stylesheet" href="dist/css/generator-v2.css">
     <style>
         body {
             margin: 0;
@@ -687,6 +688,14 @@ End Object`;
                 lastMousePosition = { x: e.clientX, y: e.clientY };
             });
 
+            // Right-click on canvas to open node menu
+            canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (!nodesDatabase) return;
+                console.log('Right-click - opening node menu at:', e.clientX, e.clientY);
+                showContextMenu(e.clientX, e.clientY);
+            });
+
             // Tab key to open node menu
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
@@ -738,6 +747,314 @@ End Object`;
                 }
             });
         });
+    </script>
+
+    <!-- Blueprint Generator UI -->
+    <div class="generator-panel" id="generatorPanel">
+        <div class="generator-header">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+            Blueprint Generator
+        </div>
+
+        <div class="generator-section">
+            <label class="generator-label" for="promptInput">Describe your blueprint logic:</label>
+            <textarea
+                id="promptInput"
+                class="generator-textarea"
+                placeholder="Example: Find the distance between the player and nearest enemy (Ctrl+Enter to generate)"
+                rows="4"
+            ></textarea>
+        </div>
+
+        <div class="generator-section api-key-section">
+            <label class="generator-label" for="apiKeyInput">Claude API Key:</label>
+            <input
+                type="password"
+                id="apiKeyInput"
+                class="generator-input"
+                placeholder="sk-ant-..."
+            />
+            <span class="api-key-help" title="Get your API key from console.anthropic.com">?</span>
+        </div>
+
+        <div class="generator-section" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="demoModeCheckbox" style="width: auto;">
+            <label for="demoModeCheckbox" style="margin: 0; cursor: pointer; font-size: 12px; color: rgba(255,255,255,0.7);">
+                Demo Mode (no API key needed)
+            </label>
+        </div>
+
+        <div class="generator-section">
+            <label class="generator-label" for="examplesSelect">Examples:</label>
+            <select id="examplesSelect" class="generator-select">
+                <option value="">Load an example...</option>
+                <option value="print">Print "Hello World" to screen</option>
+                <option value="health">Get player health</option>
+                <option value="distance">Find distance between player and enemy</option>
+                <option value="damage">Deal damage to enemy</option>
+                <option value="spawn">Spawn actor at location</option>
+            </select>
+        </div>
+
+        <button id="generateButton" class="generator-button">
+            <svg viewBox="0 0 24 24"><path d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2 8.6 4.5 10 7 7.5 5.6zm12 9.8L22 14l-1.4 2.5L22 19l-2.5-1.4L17 19l1.4-2.5L17 14l2.5 1.4zM22 2l-1.4 2.5L22 7l-2.5-1.4L17 7l1.4-2.5L17 2l2.5 1.4L22 2zm-7.63 5.29c-.39-.39-1.02-.39-1.41 0L1.29 18.96c-.39.39-.39 1.02 0 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05c.39-.39.39-1.02 0-1.41l-2.33-2.35z"/></svg>
+            Generate Blueprint
+        </button>
+
+        <div id="generatorMessage"></div>
+
+        <div class="generator-stats" id="generatorStats" style="display: none;">
+            <div class="generator-stat">
+                <span>⚡</span>
+                <span id="genTime">0s</span>
+            </div>
+            <div class="generator-stat">
+                <span>📊</span>
+                <span id="genTokens">0 tokens</span>
+            </div>
+            <div class="generator-stat">
+                <span>🎯</span>
+                <span id="genNodes">0 nodes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Panel -->
+    <div class="export-panel" id="exportPanel">
+        <div class="export-header">Export Blueprint</div>
+        <div class="export-actions">
+            <button class="export-button" id="copyButton">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+            </button>
+            <button class="export-button" id="downloadButton">
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                Download
+            </button>
+        </div>
+        <div class="export-instructions">
+            <strong>How to import into Unreal Engine:</strong>
+            <ol>
+                <li>Copy the blueprint code</li>
+                <li>Open your Blueprint in Unreal Engine</li>
+                <li>Open the Event Graph</li>
+                <li>Paste (Ctrl+V) into the graph</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Help Panel -->
+    <div class="help-panel collapsed" id="helpPanel">
+        <div class="help-header" onclick="document.getElementById('helpPanel').classList.toggle('collapsed')">
+            <div class="help-header-title">
+                <svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+                <span>Keyboard Shortcuts</span>
+            </div>
+            <span class="help-toggle">▼</span>
+        </div>
+        <div class="help-content">
+            <div class="help-section">
+                <div class="help-section-title">Node Search & Spawn</div>
+                <div class="help-shortcut">
+                    <span class="help-key">Right Click</span>
+                    <span class="help-desc">Open node search menu</span>
+                </div>
+                <div class="help-shortcut">
+                    <span class="help-key">Tab</span>
+                    <span class="help-desc">Open node search menu</span>
+                </div>
+                <div class="help-shortcut">
+                    <span class="help-key">Enter</span>
+                    <span class="help-desc">Spawn selected node</span>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <div class="help-section-title">Pin Connections</div>
+                <div class="help-shortcut">
+                    <span class="help-key">Click + Drag</span>
+                    <span class="help-desc">Drag from pin to create connection</span>
+                </div>
+                <div class="help-shortcut">
+                    <span class="help-key">Alt + Click</span>
+                    <span class="help-desc">Delete connection/link</span>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <div class="help-section-title">Other</div>
+                <div class="help-shortcut">
+                    <span class="help-key">Delete</span>
+                    <span class="help-desc">Delete selected nodes</span>
+                </div>
+                <div class="help-shortcut">
+                    <span class="help-key">Ctrl + Enter</span>
+                    <span class="help-desc">Generate blueprint from prompt</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generator JavaScript (v2 with improved system prompt) -->
+    <script src="dist/generator-v2.js"></script>
+    <script>
+        // Generator UI Logic
+        let currentBlueprintCode = '';
+
+        // Load saved API key on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const apiKeyInput = document.getElementById('apiKeyInput');
+            const saved = localStorage.getItem('blueprint_api_key');
+            if (saved) {
+                apiKeyInput.value = saved;
+                window.blueprintGenerator.apiKey = saved;
+            }
+
+            // Save API key on change
+            apiKeyInput.addEventListener('change', (e) => {
+                window.blueprintGenerator.saveApiKey(e.target.value);
+            });
+
+            // Demo mode checkbox
+            const demoCheckbox = document.getElementById('demoModeCheckbox');
+            demoCheckbox.addEventListener('change', (e) => {
+                window.blueprintGenerator.demoMode = e.target.checked;
+                apiKeyInput.disabled = e.target.checked;
+                if (e.target.checked) {
+                    apiKeyInput.placeholder = 'Not needed in demo mode';
+                } else {
+                    apiKeyInput.placeholder = 'sk-ant-...';
+                }
+            });
+        });
+
+        // Ctrl+Enter to generate
+        document.getElementById('promptInput').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('generateButton').click();
+            }
+        });
+
+        // Example selector
+        document.getElementById('examplesSelect').addEventListener('change', (e) => {
+            const examples = {
+                'print': 'Print "Hello World" to the screen',
+                'health': 'Get the player character health variable',
+                'distance': 'Find the distance between the player and the nearest enemy',
+                'damage': 'Deal 10 damage to the enemy when player presses F key',
+                'spawn': 'Spawn an actor at the player location when game starts'
+            };
+
+            const prompt = examples[e.target.value];
+            if (prompt) {
+                document.getElementById('promptInput').value = prompt;
+            }
+        });
+
+        // Generate button
+        document.getElementById('generateButton').addEventListener('click', async () => {
+            const promptInput = document.getElementById('promptInput');
+            const generateButton = document.getElementById('generateButton');
+            const messageDiv = document.getElementById('generatorMessage');
+            const statsDiv = document.getElementById('generatorStats');
+            const blueprintElement = document.querySelector('ueb-blueprint');
+            const template = blueprintElement.querySelector('template');
+
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                showMessage('Please enter a blueprint description', 'error');
+                return;
+            }
+
+            // Show loading state
+            generateButton.disabled = true;
+            generateButton.innerHTML = `
+                <span class="spinner"></span>
+                Generating...
+            `;
+            messageDiv.innerHTML = '';
+            statsDiv.style.display = 'none';
+
+            const startTime = Date.now();
+
+            try {
+                const result = await window.blueprintGenerator.generate(prompt);
+                const endTime = Date.now();
+
+                currentBlueprintCode = result.blueprint;
+
+                // Validate blueprint
+                const validation = window.blueprintGenerator.validateBlueprint(result.blueprint);
+
+                if (!validation.valid) {
+                    showMessage('Generated blueprint has errors: ' + validation.errors.join(', '), 'error');
+                    console.error('Validation errors:', validation.errors);
+                    console.log('Generated code:', result.blueprint);
+                } else {
+                    // Update the blueprint viewer
+                    template.textContent = result.blueprint;
+                    blueprintElement.requestUpdate();
+
+                    // Show success
+                    showMessage(`Successfully generated ${validation.nodeCount} nodes!`, 'success');
+
+                    // Show stats
+                    document.getElementById('genTime').textContent = ((endTime - startTime) / 1000).toFixed(1) + 's';
+                    document.getElementById('genTokens').textContent = (result.usage?.total_tokens || 0) + ' tokens';
+                    document.getElementById('genNodes').textContent = validation.nodeCount + ' nodes';
+                    statsDiv.style.display = 'flex';
+
+                    // Show export panel
+                    document.getElementById('exportPanel').classList.add('visible');
+                }
+
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+                console.error('Generation error:', error);
+            } finally {
+                // Reset button
+                generateButton.disabled = false;
+                generateButton.innerHTML = `
+                    <svg viewBox="0 0 24 24"><path d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2 8.6 4.5 10 7 7.5 5.6zm12 9.8L22 14l-1.4 2.5L22 19l-2.5-1.4L17 19l1.4-2.5L17 14l2.5 1.4zM22 2l-1.4 2.5L22 7l-2.5-1.4L17 7l1.4-2.5L17 2l2.5 1.4L22 2zm-7.63 5.29c-.39-.39-1.02-.39-1.41 0L1.29 18.96c-.39.39-.39 1.02 0 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05c.39-.39.39-1.02 0-1.41l-2.33-2.35z"/></svg>
+                    Generate Blueprint
+                `;
+            }
+        });
+
+        // Copy button
+        document.getElementById('copyButton').addEventListener('click', () => {
+            if (!currentBlueprintCode) return;
+
+            navigator.clipboard.writeText(currentBlueprintCode).then(() => {
+                const btn = document.getElementById('copyButton');
+                const original = btn.innerHTML;
+                btn.innerHTML = '✓ Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                }, 2000);
+            });
+        });
+
+        // Download button
+        document.getElementById('downloadButton').addEventListener('click', () => {
+            if (!currentBlueprintCode) return;
+
+            const blob = new Blob([currentBlueprintCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'blueprint.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Helper function to show messages
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('generatorMessage');
+            messageDiv.className = type === 'error' ? 'generator-error' : 'generator-success';
+            messageDiv.textContent = text;
+        }
     </script>
 </body>
 

@@ -1,0 +1,210 @@
+{
+  "version": "1.0",
+  "description": "Unreal Engine Blueprint Node Reference Database for LLM Generation",
+  "format_info": {
+    "node_structure": "Begin Object Class=/Script/BlueprintGraph.{NodeClass} Name=\"{NodeName}\" {Properties} CustomProperties Pin (...) End Object",
+    "pin_structure": "CustomProperties Pin (PinId={GUID},PinName=\"{Name}\",Direction=\"{EGPD_Input|EGPD_Output}\",PinType.PinCategory=\"{Category}\",...)",
+    "guid_format": "32 hex characters, e.g., 77FD3D6E4C87660037450597A3D8406C",
+    "connection_format": "LinkedTo=({NodeName} {PinGuid},)"
+  },
+  "pin_categories": {
+    "exec": "Execution flow pins (white arrows)",
+    "object": "Object references",
+    "class": "Class references",
+    "struct": "Struct types (Vector, Rotator, Transform, Color, etc.)",
+    "real": "Float/Double numbers",
+    "int": "Integer numbers",
+    "int64": "64-bit integers",
+    "byte": "Byte values",
+    "bool": "Boolean true/false",
+    "string": "Text strings",
+    "text": "FText localized strings",
+    "name": "FName identifiers",
+    "enum": "Enumeration values",
+    "delegate": "Delegate references",
+    "interface": "Interface references"
+  },
+  "common_libraries": {
+    "KismetSystemLibrary": "/Script/Engine.KismetSystemLibrary",
+    "KismetMathLibrary": "/Script/Engine.KismetMathLibrary",
+    "KismetStringLibrary": "/Script/Engine.KismetStringLibrary",
+    "KismetArrayLibrary": "/Script/Engine.KismetArrayLibrary",
+    "GameplayStatics": "/Script/Engine.GameplayStatics",
+    "KismetTextLibrary": "/Script/Engine.KismetTextLibrary",
+    "BlueprintMapLibrary": "/Script/Engine.BlueprintMapLibrary",
+    "BlueprintSetLibrary": "/Script/Engine.BlueprintSetLibrary",
+    "Actor": "/Script/Engine.Actor",
+    "Pawn": "/Script/Engine.Pawn",
+    "Character": "/Script/Engine.Character",
+    "PlayerController": "/Script/Engine.PlayerController",
+    "AIController": "/Script/AIModule.AIController"
+  },
+  "node_types": {
+    "K2Node_Event": {
+      "description": "Event nodes that start execution",
+      "examples": [
+        {
+          "name": "BeginPlay",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_Event Name=\"K2Node_Event_0\" EventReference=(MemberParent=/Script/Engine.Actor,MemberName=\"ReceiveBeginPlay\") bOverrideFunction=True NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\",PinType.PinSubCategory=\"\",PinType.PinSubCategoryObject=None,PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(),PinType.ContainerType=None,PinType.bIsReference=False,PinType.bIsConst=False,PinType.bIsWeakPointer=False,PinType.bIsUObjectWrapper=False,PinType.bSerializeAsSinglePrecisionFloat=False,PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,) End Object"
+        },
+        {
+          "name": "Tick",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_Event Name=\"K2Node_Event_0\" EventReference=(MemberParent=/Script/Engine.Actor,MemberName=\"ReceiveTick\") bOverrideFunction=True NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"DeltaSeconds\",Direction=\"EGPD_Output\",PinType.PinCategory=\"real\",PinType.PinSubCategory=\"float\") End Object"
+        }
+      ]
+    },
+    "K2Node_CallFunction": {
+      "description": "Function call nodes",
+      "examples": [
+        {
+          "name": "PrintString",
+          "library": "KismetSystemLibrary",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetSystemLibrary\"',MemberName=\"PrintString\") NodePosX=256 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\",LinkedTo=({PrevNode} {PrevPinGuid},)) CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"WorldContextObject\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Object\"',bHidden=True) CustomProperties Pin (PinId={GUID},PinName=\"InString\",PinType.PinCategory=\"string\",DefaultValue=\"Hello World\") CustomProperties Pin (PinId={GUID},PinName=\"bPrintToScreen\",PinType.PinCategory=\"bool\",DefaultValue=\"true\") CustomProperties Pin (PinId={GUID},PinName=\"bPrintToLog\",PinType.PinCategory=\"bool\",DefaultValue=\"true\") CustomProperties Pin (PinId={GUID},PinName=\"TextColor\",PinType.PinCategory=\"struct\",PinType.PinSubCategoryObject=/Script/CoreUObject.ScriptStruct'\"/Script/CoreUObject.LinearColor\"',DefaultValue=\"(R=0.0,G=0.66,B=1.0,A=1.0)\") CustomProperties Pin (PinId={GUID},PinName=\"Duration\",PinType.PinCategory=\"real\",PinType.PinSubCategory=\"float\",DefaultValue=\"2.0\") End Object"
+        },
+        {
+          "name": "Delay",
+          "library": "KismetSystemLibrary",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" bIsLatent=True FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetSystemLibrary\"',MemberName=\"Delay\") NodePosX=256 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"Completed\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"WorldContextObject\",PinType.PinCategory=\"object\",bHidden=True) CustomProperties Pin (PinId={GUID},PinName=\"Duration\",PinType.PinCategory=\"real\",PinType.PinSubCategory=\"float\",DefaultValue=\"0.2\") End Object"
+        },
+        {
+          "name": "GetActorLocation",
+          "library": "Actor",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" bIsPureFunc=True FunctionReference=(MemberParent=Class'\"/Script/Engine.Actor\"',MemberName=\"K2_GetActorLocation\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"self\",PinFriendlyName=\"Target\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Actor\"') CustomProperties Pin (PinId={GUID},PinName=\"ReturnValue\",Direction=\"EGPD_Output\",PinType.PinCategory=\"struct\",PinType.PinSubCategoryObject=/Script/CoreUObject.ScriptStruct'\"/Script/CoreUObject.Vector\"') End Object"
+        },
+        {
+          "name": "SetActorLocation",
+          "library": "Actor",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" FunctionReference=(MemberParent=Class'\"/Script/Engine.Actor\"',MemberName=\"K2_SetActorLocation\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"self\",PinFriendlyName=\"Target\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Actor\"') CustomProperties Pin (PinId={GUID},PinName=\"NewLocation\",PinType.PinCategory=\"struct\",PinType.PinSubCategoryObject=/Script/CoreUObject.ScriptStruct'\"/Script/CoreUObject.Vector\"') CustomProperties Pin (PinId={GUID},PinName=\"bSweep\",PinType.PinCategory=\"bool\",DefaultValue=\"false\") CustomProperties Pin (PinId={GUID},PinName=\"SweepHitResult\",Direction=\"EGPD_Output\",PinType.PinCategory=\"struct\",PinType.PinSubCategoryObject=/Script/CoreUObject.ScriptStruct'\"/Script/Engine.HitResult\"') CustomProperties Pin (PinId={GUID},PinName=\"bTeleport\",PinType.PinCategory=\"bool\",DefaultValue=\"false\") CustomProperties Pin (PinId={GUID},PinName=\"ReturnValue\",Direction=\"EGPD_Output\",PinType.PinCategory=\"bool\") End Object"
+        },
+        {
+          "name": "SpawnActorFromClass",
+          "library": "GameplayStatics",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" FunctionReference=(MemberParent=Class'\"/Script/Engine.GameplayStatics\"',MemberName=\"BeginDeferredActorSpawnFromClass\") NodePosX=0 NodePosY=0 NodeGuid={GUID} End Object"
+        },
+        {
+          "name": "GetAllActorsOfClass",
+          "library": "GameplayStatics",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" FunctionReference=(MemberParent=Class'\"/Script/Engine.GameplayStatics\"',MemberName=\"GetAllActorsOfClass\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"WorldContextObject\",PinType.PinCategory=\"object\",bHidden=True) CustomProperties Pin (PinId={GUID},PinName=\"ActorClass\",PinType.PinCategory=\"class\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Actor\"') CustomProperties Pin (PinId={GUID},PinName=\"OutActors\",Direction=\"EGPD_Output\",PinType.PinCategory=\"object\",PinType.ContainerType=Array) End Object"
+        },
+        {
+          "name": "GetPlayerController",
+          "library": "GameplayStatics",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" bIsPureFunc=True FunctionReference=(MemberParent=Class'\"/Script/Engine.GameplayStatics\"',MemberName=\"GetPlayerController\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"WorldContextObject\",PinType.PinCategory=\"object\",bHidden=True) CustomProperties Pin (PinId={GUID},PinName=\"PlayerIndex\",PinType.PinCategory=\"int\",DefaultValue=\"0\") CustomProperties Pin (PinId={GUID},PinName=\"ReturnValue\",Direction=\"EGPD_Output\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.PlayerController\"') End Object"
+        },
+        {
+          "name": "GetPlayerCharacter",
+          "library": "GameplayStatics",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" bIsPureFunc=True FunctionReference=(MemberParent=Class'\"/Script/Engine.GameplayStatics\"',MemberName=\"GetPlayerCharacter\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"WorldContextObject\",PinType.PinCategory=\"object\",bHidden=True) CustomProperties Pin (PinId={GUID},PinName=\"PlayerIndex\",PinType.PinCategory=\"int\",DefaultValue=\"0\") CustomProperties Pin (PinId={GUID},PinName=\"ReturnValue\",Direction=\"EGPD_Output\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Character\"') End Object"
+        },
+        {
+          "name": "VectorLength",
+          "library": "KismetMathLibrary",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" bIsPureFunc=True FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"VSize\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"A\",PinType.PinCategory=\"struct\",PinType.PinSubCategoryObject=/Script/CoreUObject.ScriptStruct'\"/Script/CoreUObject.Vector\"') CustomProperties Pin (PinId={GUID},PinName=\"ReturnValue\",Direction=\"EGPD_Output\",PinType.PinCategory=\"real\",PinType.PinSubCategory=\"double\") End Object"
+        },
+        {
+          "name": "GetDistanceTo",
+          "library": "Actor",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name=\"K2Node_CallFunction_0\" bIsPureFunc=True FunctionReference=(MemberParent=Class'\"/Script/Engine.Actor\"',MemberName=\"GetDistanceTo\") NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"self\",PinFriendlyName=\"Target\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Actor\"') CustomProperties Pin (PinId={GUID},PinName=\"OtherActor\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/CoreUObject.Class'\"/Script/Engine.Actor\"') CustomProperties Pin (PinId={GUID},PinName=\"ReturnValue\",Direction=\"EGPD_Output\",PinType.PinCategory=\"real\",PinType.PinSubCategory=\"float\") End Object"
+        }
+      ]
+    },
+    "K2Node_VariableGet": {
+      "description": "Get variable value nodes",
+      "examples": [
+        {
+          "name": "GetVariable",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_VariableGet Name=\"K2Node_VariableGet_0\" VariableReference=(MemberName=\"{VariableName}\",MemberGuid={GUID},bSelfContext=True) NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"{VariableName}\",Direction=\"EGPD_Output\",PinType.PinCategory=\"{Type}\") CustomProperties Pin (PinId={GUID},PinName=\"self\",PinFriendlyName=\"Target\",PinType.PinCategory=\"object\",bHidden=True) End Object"
+        }
+      ]
+    },
+    "K2Node_VariableSet": {
+      "description": "Set variable value nodes",
+      "examples": [
+        {
+          "name": "SetVariable",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_VariableSet Name=\"K2Node_VariableSet_0\" VariableReference=(MemberName=\"{VariableName}\",MemberGuid={GUID},bSelfContext=True) NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"{VariableName}\",PinType.PinCategory=\"{Type}\") CustomProperties Pin (PinId={GUID},PinName=\"Output_Get\",Direction=\"EGPD_Output\",PinType.PinCategory=\"{Type}\") CustomProperties Pin (PinId={GUID},PinName=\"self\",PinFriendlyName=\"Target\",PinType.PinCategory=\"object\",bHidden=True) End Object"
+        }
+      ]
+    },
+    "K2Node_IfThenElse": {
+      "description": "Branch/If node",
+      "examples": [
+        {
+          "name": "Branch",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_IfThenElse Name=\"K2Node_IfThenElse_0\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"Condition\",PinType.PinCategory=\"bool\") CustomProperties Pin (PinId={GUID},PinName=\"then\",PinFriendlyName=\"True\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"else\",PinFriendlyName=\"False\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") End Object"
+        }
+      ]
+    },
+    "K2Node_MacroInstance": {
+      "description": "Macro nodes like ForEachLoop, Sequence",
+      "examples": [
+        {
+          "name": "ForEachLoop",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_MacroInstance Name=\"K2Node_MacroInstance_0\" MacroGraphReference=(MacroGraph=/Script/Engine.EdGraph'\"/Engine/EditorBlueprintResources/StandardMacros.StandardMacros:ForEachLoop\"',GraphGuid={GUID}) NodePosX=0 NodePosY=0 NodeGuid={GUID} End Object"
+        },
+        {
+          "name": "Sequence",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_ExecutionSequence Name=\"K2Node_ExecutionSequence_0\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"execute\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"then_0\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"then_1\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") End Object"
+        }
+      ]
+    },
+    "K2Node_InputAction": {
+      "description": "Input action event nodes",
+      "examples": [
+        {
+          "name": "InputAction",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_InputAction Name=\"K2Node_InputAction_0\" InputActionName=\"{ActionName}\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"Pressed\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"Released\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") CustomProperties Pin (PinId={GUID},PinName=\"Key\",Direction=\"EGPD_Output\",PinType.PinCategory=\"struct\",PinType.PinSubCategoryObject=/Script/CoreUObject.ScriptStruct'\"/Script/InputCore.Key\"') End Object"
+        }
+      ]
+    },
+    "K2Node_CustomEvent": {
+      "description": "Custom event nodes",
+      "examples": [
+        {
+          "name": "CustomEvent",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_CustomEvent Name=\"K2Node_CustomEvent_0\" CustomFunctionName=\"{EventName}\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"OutputDelegate\",Direction=\"EGPD_Output\",PinType.PinCategory=\"delegate\") CustomProperties Pin (PinId={GUID},PinName=\"then\",Direction=\"EGPD_Output\",PinType.PinCategory=\"exec\") End Object"
+        }
+      ]
+    },
+    "K2Node_Knot": {
+      "description": "Reroute/Knot nodes for wire organization",
+      "examples": [
+        {
+          "name": "Reroute",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_Knot Name=\"K2Node_Knot_0\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"InputPin\",PinType.PinCategory=\"{PinType}\") CustomProperties Pin (PinId={GUID},PinName=\"OutputPin\",Direction=\"EGPD_Output\",PinType.PinCategory=\"{PinType}\") End Object"
+        }
+      ]
+    },
+    "K2Node_Self": {
+      "description": "Self reference node",
+      "examples": [
+        {
+          "name": "Self",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_Self Name=\"K2Node_Self_0\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"self\",Direction=\"EGPD_Output\",PinType.PinCategory=\"object\",PinType.PinSubCategoryObject=/Script/Engine.BlueprintGeneratedClass'\"{BlueprintPath}\"') End Object"
+        }
+      ]
+    },
+    "K2Node_Literal": {
+      "description": "Literal value nodes",
+      "examples": [
+        {
+          "name": "StringLiteral",
+          "syntax": "Begin Object Class=/Script/BlueprintGraph.K2Node_Literal Name=\"K2Node_Literal_0\" DefaultValue=\"{StringValue}\" NodePosX=0 NodePosY=0 NodeGuid={GUID} CustomProperties Pin (PinId={GUID},PinName=\"Value\",Direction=\"EGPD_Output\",PinType.PinCategory=\"string\",DefaultValue=\"{StringValue}\") End Object"
+        }
+      ]
+    }
+  },
+  "math_operations": {
+    "Add": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"Add_{Type}{Type}\")",
+    "Subtract": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"Subtract_{Type}{Type}\")",
+    "Multiply": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"Multiply_{Type}{Type}\")",
+    "Divide": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"Divide_{Type}{Type}\")",
+    "types": ["IntInt", "FloatFloat", "VectorFloat", "VectorVector", "IntFloat"]
+  },
+  "comparison_operations": {
+    "Greater": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"Greater_{Type}{Type}\")",
+    "Less": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"Less_{Type}{Type}\")",
+    "EqualEqual": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"EqualEqual_{Type}{Type}\")",
+    "NotEqual": "FunctionReference=(MemberParent=Class'\"/Script/Engine.KismetMathLibrary\"',MemberName=\"NotEqual_{Type}{Type}\")"
+  }
+}

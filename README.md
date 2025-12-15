@@ -4,6 +4,39 @@
 
 Logic creation using blueprints made easy.
 
+## ⚡ NEW: AI-Powered Blueprint Generation
+
+**Generate Unreal Engine Blueprints from natural language!**
+
+Simply describe what you want in plain English, and the LLM generates blueprint code:
+
+- 💬 **Natural language input:** "Find the distance between player and enemy"
+- 🎨 **Visual preview:** See the blueprint rendered in your browser
+- 📥 **Export to UE:** Copy/download code to paste directly into Unreal Engine
+
+**Get Started:** See [QUICK_START.md](QUICK_START.md) for setup instructions.
+
+## 🎮 Interactive Blueprint Editor
+
+The blueprint viewer includes full interactive editing capabilities, just like Unreal Engine:
+
+### Node Management
+- **Right-click** or **Tab** - Open node search menu
+- **Type to filter** - Find nodes instantly
+- **Enter** - Spawn node at cursor position
+
+### Pin Connections
+- **Click & drag from pins** - Create connections between nodes
+- **Alt + Click on link** - Delete connection
+- Compatible pins highlight automatically
+
+### Editing
+- **Delete key** - Remove selected nodes
+- **Drag nodes** - Reposition your logic
+- **Click help button (bottom-left)** - View all shortcuts
+
+See [INTERACTIVE_FEATURES.md](INTERACTIVE_FEATURES.md) for the complete guide.
+
 ## Demo
 
 <img src="media/2025-11-23/blueprint-demo.gif" alt="blueprint-gpt demo" style="max-width: 960px; width: 100%; border: 1px solid #ddd; border-radius: 8px;" />

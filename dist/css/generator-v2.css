@@ -1,0 +1,408 @@
+/* Blueprint Generator Panel Styles */
+
+.generator-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 320px;
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    z-index: 1000;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.generator-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.generator-header svg {
+    width: 18px;
+    height: 18px;
+    fill: #4a9eff;
+}
+
+.generator-section {
+    margin-bottom: 12px;
+}
+
+.generator-label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+}
+
+.generator-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+
+.generator-textarea:focus {
+    outline: none;
+    border-color: #4a9eff;
+    box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+}
+
+.generator-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.generator-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.generator-input:focus {
+    outline: none;
+    border-color: #4a9eff;
+}
+
+.generator-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.api-key-section {
+    position: relative;
+}
+
+.api-key-help {
+    position: absolute;
+    right: 8px;
+    top: 28px;
+    width: 18px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: help;
+}
+
+.generator-select {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.generator-select:focus {
+    outline: none;
+    border-color: #4a9eff;
+}
+
+.generator-select option {
+    background: #2a2a2a;
+    color: #fff;
+}
+
+.generator-button {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #4a9eff 0%, #3a7ed0 100%);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.generator-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5aadff 0%, #4a8ee0 100%);
+    transform: translateY(-1px);
+}
+
+.generator-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.generator-button svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.generator-error {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 80, 80, 0.15);
+    border: 1px solid rgba(255, 80, 80, 0.3);
+    border-radius: 6px;
+    color: #ff6b6b;
+    font-size: 12px;
+}
+
+.generator-success {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(80, 255, 120, 0.15);
+    border: 1px solid rgba(80, 255, 120, 0.3);
+    border-radius: 6px;
+    color: #6bffa0;
+    font-size: 12px;
+}
+
+.generator-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.generator-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Export Panel */
+.export-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    z-index: 1000;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    display: none;
+}
+
+.export-panel.visible {
+    display: block;
+}
+
+.export-header {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.export-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.export-button {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.export-button:hover {
+    background: rgba(70, 70, 70, 0.8);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.export-button svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.export-instructions {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.5;
+}
+
+.export-instructions strong {
+    color: rgba(255, 255, 255, 0.8);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.export-instructions ol {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.export-instructions li {
+    margin-bottom: 4px;
+}
+
+/* Help Panel */
+.help-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 280px;
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    z-index: 999;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.help-panel.collapsed {
+    width: auto;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.help-panel.collapsed .help-content {
+    display: none;
+}
+
+.help-panel.collapsed .help-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.help-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+.help-header-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.help-header svg {
+    width: 16px;
+    height: 16px;
+    fill: #4a9eff;
+}
+
+.help-toggle {
+    font-size: 18px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s;
+}
+
+.help-panel.collapsed .help-toggle {
+    transform: rotate(180deg);
+}
+
+.help-content {
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.help-section {
+    margin-bottom: 10px;
+}
+
+.help-section-title {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.help-shortcut {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.help-key {
+    background: rgba(74, 158, 255, 0.2);
+    border: 1px solid rgba(74, 158, 255, 0.4);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #4a9eff;
+    font-family: monospace;
+}
+
+.help-desc {
+    flex: 1;
+}
