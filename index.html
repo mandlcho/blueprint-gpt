@@ -392,6 +392,8 @@
         let lastMousePosition = { x: 0, y: 0 };
         let lastDragEndTime = 0;
         let isDragging = false;
+        let mouseDownPosition = null;
+        let actuallyDragged = false;
 
         // Load nodes database
         async function loadNodesDatabase() {
@@ -822,9 +824,24 @@ End Object`;
             const canvas = document.querySelector('ueb-blueprint');
             const input = document.getElementById('nodeSearchInput');
 
-            // Track mouse position globally
+            // Prevent default context menu everywhere
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            // Track mouse position and dragging
             document.addEventListener('mousemove', (e) => {
                 lastMousePosition = { x: e.clientX, y: e.clientY };
+
+                // Check if actually dragging (mouse moved while right button down)
+                if (isDragging && mouseDownPosition) {
+                    const dx = Math.abs(e.clientX - mouseDownPosition.x);
+                    const dy = Math.abs(e.clientY - mouseDownPosition.y);
+                    // Consider it a drag if moved more than 5 pixels
+                    if (dx > 5 || dy > 5) {
+                        actuallyDragged = true;
+                    }
+                }
             });
 
             // Track dragging state
@@ -832,6 +849,8 @@ End Object`;
                 // Right-click starts potential drag
                 if (e.button === 2) {
                     isDragging = true;
+                    mouseDownPosition = { x: e.clientX, y: e.clientY };
+                    actuallyDragged = false;
                 }
             });
 
@@ -839,7 +858,10 @@ End Object`;
                 // End of any drag operation
                 if (isDragging && e.button === 2) {
                     isDragging = false;
-                    lastDragEndTime = Date.now();
+                    mouseDownPosition = null;
+                    if (actuallyDragged) {
+                        lastDragEndTime = Date.now();
+                    }
                 }
             });
 
