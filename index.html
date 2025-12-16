@@ -390,7 +390,6 @@
         let filteredNodes = [];
         let contextMenuPosition = { x: 0, y: 0 };
         let lastMousePosition = { x: 0, y: 0 };
-        let lastDragEndTime = 0;
         let isDragging = false;
         let mouseDownPosition = null;
         let actuallyDragged = false;
@@ -859,9 +858,7 @@ End Object`;
                 if (isDragging && e.button === 2) {
                     isDragging = false;
                     mouseDownPosition = null;
-                    if (actuallyDragged) {
-                        lastDragEndTime = Date.now();
-                    }
+                    // actuallyDragged will be checked and reset in contextmenu handler
                 }
             });
 
@@ -870,10 +867,11 @@ End Object`;
                 e.preventDefault();
                 if (!nodesDatabase) return;
 
-                // Don't show menu if we just finished dragging (within 100ms)
-                const timeSinceDrag = Date.now() - lastDragEndTime;
-                if (timeSinceDrag < 100) {
-                    console.log('Ignoring contextmenu - just finished dragging');
+                // Don't show menu if we're currently dragging or just dragged
+                if (actuallyDragged) {
+                    console.log('Ignoring contextmenu - dragged');
+                    // Reset for next interaction
+                    actuallyDragged = false;
                     return;
                 }
 
@@ -887,13 +885,6 @@ End Object`;
                     // Only if not already typing in the search input
                     if (document.activeElement !== input) {
                         if (!nodesDatabase) return;
-
-                        // Don't show menu if we just finished dragging (within 100ms)
-                        const timeSinceDrag = Date.now() - lastDragEndTime;
-                        if (timeSinceDrag < 100) {
-                            console.log('Ignoring Tab - just finished dragging');
-                            return;
-                        }
 
                         e.preventDefault();
                         console.log('Tab pressed - opening node menu at:', lastMousePosition);
