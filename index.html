@@ -300,6 +300,8 @@
         let filteredNodes = [];
         let contextMenuPosition = { x: 0, y: 0 };
         let lastMousePosition = { x: 0, y: 0 };
+        let lastDragEndTime = 0;
+        let isDragging = false;
 
         // Load nodes database
         async function loadNodesDatabase() {
@@ -688,10 +690,34 @@ End Object`;
                 lastMousePosition = { x: e.clientX, y: e.clientY };
             });
 
+            // Track dragging state
+            canvas.addEventListener('mousedown', (e) => {
+                // Right-click starts potential drag
+                if (e.button === 2) {
+                    isDragging = true;
+                }
+            });
+
+            document.addEventListener('mouseup', (e) => {
+                // End of any drag operation
+                if (isDragging && e.button === 2) {
+                    isDragging = false;
+                    lastDragEndTime = Date.now();
+                }
+            });
+
             // Right-click on canvas to open node menu
             canvas.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 if (!nodesDatabase) return;
+
+                // Don't show menu if we just finished dragging (within 100ms)
+                const timeSinceDrag = Date.now() - lastDragEndTime;
+                if (timeSinceDrag < 100) {
+                    console.log('Ignoring contextmenu - just finished dragging');
+                    return;
+                }
+
                 console.log('Right-click - opening node menu at:', e.clientX, e.clientY);
                 showContextMenu(e.clientX, e.clientY);
             });
@@ -702,6 +728,13 @@ End Object`;
                     // Only if not already typing in the search input
                     if (document.activeElement !== input) {
                         if (!nodesDatabase) return;
+
+                        // Don't show menu if we just finished dragging (within 100ms)
+                        const timeSinceDrag = Date.now() - lastDragEndTime;
+                        if (timeSinceDrag < 100) {
+                            console.log('Ignoring Tab - just finished dragging');
+                            return;
+                        }
 
                         e.preventDefault();
                         console.log('Tab pressed - opening node menu at:', lastMousePosition);
