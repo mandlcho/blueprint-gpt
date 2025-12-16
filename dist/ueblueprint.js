@@ -8481,6 +8481,8 @@ class IMouseClickDrag extends IPointing {
                     if (this.consumeEvent) {
                         e.stopImmediatePropagation(); // Captured, don't call anyone else
                     }
+                    // Reset drag tracking for new interaction
+                    this.#didDrag = false;
                     // Attach the listeners
                     this.#movementListenedElement.addEventListener("mousemove", this.#mouseStartedMovingHandler);
                     document.addEventListener("mouseup", this.#mouseUpHandler);
@@ -8522,6 +8524,7 @@ class IMouseClickDrag extends IPointing {
         this.lastLocation = Utility.snapToGrid(this.clickedPosition[0], this.clickedPosition[1], this.stepSize);
         this.startDrag(this.location);
         this.started = true;
+        this.#didDrag = true;  // Track that dragging occurred for contextmenu handling
         this.#mouseMoveHandler(e);
     }
 
@@ -8587,6 +8590,7 @@ class IMouseClickDrag extends IPointing {
     #trackingMouse = false
     #movementListenedElement
     #draggableElement
+    #didDrag = false
     get draggableElement() {
         return this.#draggableElement
     }
@@ -8624,8 +8628,18 @@ class IMouseClickDrag extends IPointing {
         super.listenEvents();
         this.#draggableElement.addEventListener("mousedown", this.#mouseDownHandler);
         if (this.options.clickButton === Configuration.mouseRightClickButton) {
-            this.#draggableElement.addEventListener("contextmenu", e => e.preventDefault());
+            this.#draggableElement.addEventListener("contextmenu", this.#contextMenuHandler);
         }
+    }
+
+    #contextMenuHandler = (e) => {
+        // Only prevent contextmenu if dragging actually occurred
+        // this.#didDrag is set to true when mouse moves after mousedown
+        if (this.#didDrag) {
+            e.preventDefault();
+        }
+        // Reset flag for next interaction
+        this.#didDrag = false;
     }
 
     unlistenEvents() {
