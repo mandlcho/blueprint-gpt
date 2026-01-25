@@ -1,54 +1,111 @@
-# blueprint-gpt : llm-to-blueprint code generator.
+# blueprint-gpt
 
-**License:** Apache 2.0 — free to use, modify, and ship (including commercially) with attribution retained. Originated by Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho) · LinkedIn: [mandlcho](https://www.linkedin.com/in/mandlcho/)). See `LICENSE` and `NOTICE` for details.
+Generate, preview, and edit Unreal Engine Blueprint graphs in the browser.
 
-Logic creation using blueprints made easy.
+This repo combines:
+- a web-based Blueprint viewer/editor (UE-like interactions),
+- a natural-language → Blueprint text generator (Claude API in-browser),
+- and data tooling/scrapers for Blueprint node metadata from UE docs.
 
-## ⚡ NEW: AI-Powered Blueprint Generation
+## Problem
 
-**Generate Unreal Engine Blueprints from natural language!**
+Blueprint iteration has friction:
+- translating intent into node graphs is time-consuming,
+- sharing logic often requires screenshots rather than editable artifacts,
+- and node metadata (inputs/outputs/categories) is fragmented across docs.
 
-Simply describe what you want in plain English, and the LLM generates blueprint code:
+blueprint-gpt aims to shorten the loop: describe intent → generate Blueprint text → preview/edit visually → copy/export into UE.
 
-- 💬 **Natural language input:** "Find the distance between player and enemy"
-- 🎨 **Visual preview:** See the blueprint rendered in your browser
-- 📥 **Export to UE:** Copy/download code to paste directly into Unreal Engine
+## Who it’s for
 
-**Get Started:** See [QUICK_START.md](QUICK_START.md) for setup instructions.
+- Unreal developers who prototype gameplay logic in Blueprints
+- Tool builders who want a browser-based Blueprint visualization component
+- Anyone experimenting with LLM-assisted Blueprint authoring
 
-## 🎮 Interactive Blueprint Editor
+## Goals
 
-The blueprint viewer includes full interactive editing capabilities, just like Unreal Engine:
+- Turn natural language prompts into valid Blueprint text snippets
+- Provide a faithful, interactive graph editor UX in the browser
+- Maintain a usable node dataset for better prompting/search/spawning
 
-### Node Management
-- **Right-click** or **Tab** - Open node search menu
-- **Type to filter** - Find nodes instantly
-- **Enter** - Spawn node at cursor position
+## Success metrics
 
-### Pin Connections
-- **Click & drag from pins** - Create connections between nodes
-- **Alt + Click on link** - Delete connection
-- Compatible pins highlight automatically
+- Generation success: outputs paste into UE with minimal manual repair
+- UX success: common node graph edits are discoverable and keyboard-friendly
+- Time-to-first-result: open the page and see a generated graph in < 2 minutes
+- Data completeness: node dataset covers the majority of commonly used Blueprint nodes
 
-### Editing
-- **Delete key** - Remove selected nodes
-- **Drag nodes** - Reposition your logic
-- **Click help button (bottom-left)** - View all shortcuts
+## What’s included
 
-See [INTERACTIVE_FEATURES.md](INTERACTIVE_FEATURES.md) for the complete guide.
+### Web app (static)
+- `index.html` — main entry; includes viewer/editor and generator UI
+- `dist/uebblueprint*.js` — blueprint rendering engine
+- `dist/generator-v2.js` — generator client (Claude API call from browser)
 
-## Demo
+### Generator
+- Uses Anthropic Messages API (`https://api.anthropic.com/v1/messages`)
+- Stores API key in `localStorage` under `blueprint_api_key`
+- Has demo mode behavior when no API key is present (returns built-in example graphs)
 
-<img src="media/2025-11-23/blueprint-demo.gif" alt="blueprint-gpt demo" style="max-width: 960px; width: 100%; border: 1px solid #ddd; border-radius: 8px;" />
+### Interaction features
+See `INTERACTIVE_FEATURES.md`. Highlights:
+- Tab/right-click node search menu
+- Drag to connect pins, Alt-click to delete links
+- Delete to remove nodes, drag to reposition
+
+### Data tooling
+Scripts for building/inspecting datasets:
+- UE docs scrapers (see `SCRAPER_README.md`)
+- JSON merges and category inspection tools
+- Reference datasets in `ue_blueprint_nodes*.json`
+
+## Scope
+
+- Static web UI + blueprint graph rendering/editing
+- LLM prompt → Blueprint text generation
+- Node metadata scraping and dataset maintenance
+
+## Non-goals
+
+- Shipping a full packaged UE plugin today (that’s a later milestone)
+- Guaranteed correctness for every generated graph (LLM outputs vary)
+- Replacing UE’s Blueprint editor for production work
+
+## Constraints / assumptions
+
+- In-browser calling of Anthropic API requires `anthropic-dangerous-direct-browser-access: true`
+  - treat API keys carefully; this is intended for personal use/prototyping
+- Generated Blueprint text must match UE’s text export/import conventions
+- UE docs scraping is rate-limited/protected; scraping is multi-phase and resumable
+
+## How to run
+
+### Option A — simplest: open locally
+Open `index.html` in a modern browser.
+
+If your browser blocks some module/file behaviors, use a local server.
+
+### Option B — local server
+From repo root:
+
+```bash
+python -m http.server 8000
+```
+
+Then open http://localhost:8000/
+
+## Using the generator (Claude)
+
+1. Open the page
+2. Enter your Anthropic API key when prompted (stored in `localStorage` as `blueprint_api_key`)
+3. Type a natural language request (e.g. “Find distance between player and enemy”)
+4. The page renders the resulting graph; you can edit and then copy/export
+
+If no API key is present, the app falls back to demo graphs for testing.
 
 ## Roadmap
 
-- See `ROADMAP.md` for details.
-- Highlights: web-based interface->standalone app->packaged UE plugin (.uplugin).
-
-## License and attribution
-
-- Licensed under Apache 2.0. You can use, learn from, modify, and ship it (including commercially) as long as you keep the required notices.
-- Originator: Mandl Cho (GitHub: [@mandlcho](https://github.com/mandlcho) · LinkedIn: [mandlcho](https://www.linkedin.com/in/mandlcho/)). Please retain this attribution in forks and redistributions.
-- Contributions are welcome and will be released under the same license; submit PRs to be listed as a contributor.
-- Friendly ask: if you use this, drop me a message and let me know what you’re building.
+- Add a validation report panel (node count, pin link integrity, missing metadata)
+- Add export formats (download `.txt` and clipboard helpers)
+- Improve node search with dataset-backed pin-type compatibility filtering
+- Package targets: web interface → standalone app → UE plugin (.uplugin)
